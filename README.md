@@ -1,70 +1,72 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# CrispFXR
 
-## Available Scripts
+A modern web-based 8-bit sound synthesizer for creating (retro game) audio effects. Built with React and Web Audio API.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Real-time Waveform Visualization** - See your sound as you create it
+- **Spectrum Analyzer** - Frequency domain analysis
+- **Advanced Synthesis Engine** - Square, sawtooth, sine, and noise waveforms
+- **FM Synthesis** - Frequency modulation for complex tones
+- **LFO Modulation** - Low-frequency oscillation effects
+- **Classic Presets** - Pickup coin, laser shot, explosion, power-up, and more
+- **WAV Export** - Download high-quality audio files
+- **Preset System** - Save and load custom sound configurations
+- **Filter Effects** - Low-pass, high-pass, and phaser effects
+- **Envelope Control** - Attack, sustain, decay, and punch parameters
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Live Demo
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+[Visit CrispFXR](https://crispstrobe.vercel.app)
 
-### `npm test`
+## Usage
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Choose a Preset** - Start with one of the built-in sound presets
+2. **Adjust Parameters** - Use the sliders to modify the sound
+3. **Play & Preview** - Click "Play Sound" to hear your creation
+4. **Export Audio** - Download as WAV file for use in your projects
+5. **Save Presets** - Export parameter settings as JSON for later use
 
-### `npm run build`
+## Development
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
+- Node.js 16+
+- npm
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Setup
+```bash
+git clone https://github.com/CrispStrobe/CrispFXR.git
+cd CrispFXR
+npm install
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Build for Production
+```bash
+npm run build
+```
 
-### `npm run eject`
+## Technology Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **React 19** - UI framework
+- **Web Audio API** - Audio synthesis and processing
+- **Tailwind CSS** - Styling
+- **Lucide React** - Icons
+- **Canvas API** - Waveform visualization
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Browser Support
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Works in all modern browsers that support Web Audio API:
+- Chrome 66+
+- Firefox 60+
+- Safari 14.1+
+- Edge 79+
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Credits
 
-## Learn More
+Based on the original [jsfxr](https://github.com/chr15m/jsfxr) by Chris McCormick, which is a JavaScript port of [sfxr](http://www.drpetter.se/project_sfxr.html) by DrPetter.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## License
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+MIT License - feel free to use in your projects.
