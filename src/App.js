@@ -509,13 +509,13 @@ export default function ModernJSfxr() {
   }, [generateSound]);
 
   const presets = [
-    { name: 'pickupCoin', label: 'Pickup Coin', color: 'bg-yellow-600' },
-    { name: 'laserShoot', label: 'Laser Shot', color: 'bg-red-600' },
-    { name: 'explosion', label: 'Explosion', color: 'bg-orange-600' },
-    { name: 'powerUp', label: 'Power Up', color: 'bg-green-600' },
-    { name: 'hitHurt', label: 'Hit/Hurt', color: 'bg-purple-600' },
-    { name: 'jump', label: 'Jump', color: 'bg-blue-600' },
-    { name: 'random', label: 'Random', color: 'bg-gray-600' }
+    { name: 'pickupCoin', label: 'Pickup Coin', color: 'bg-yellow-500 text-black' },
+    { name: 'laserShoot', label: 'Laser Shot', color: 'bg-red-600 text-white' },
+    { name: 'explosion', label: 'Explosion', color: 'bg-orange-500 text-black' },
+    { name: 'powerUp', label: 'Power Up', color: 'bg-green-600 text-white' },
+    { name: 'hitHurt', label: 'Hit/Hurt', color: 'bg-purple-600 text-white' },
+    { name: 'jump', label: 'Jump', color: 'bg-blue-600 text-white' },
+    { name: 'random', label: 'Random', color: 'bg-gray-700 text-white' }
   ];
 
   const waveTypes = ['Square', 'Sawtooth', 'Sine', 'Noise'];
