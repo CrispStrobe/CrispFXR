@@ -210,6 +210,117 @@ class SynthParams {
     return this;
   }
 
+  blip() {
+    this.reset();
+    this.wave_type = SINE;
+    this.p_base_freq = 0.5 + Math.random() * 0.3;
+    this.p_env_attack = 0;
+    this.p_env_sustain = 0.01 + Math.random() * 0.05;
+    this.p_env_decay = 0.1 + Math.random() * 0.2;
+    this.p_freq_ramp = 0.1 + Math.random() * 0.3;
+    return this;
+  }
+
+  zap() {
+    this.reset();
+    this.wave_type = SQUARE;
+    this.p_base_freq = 0.6 + Math.random() * 0.4;
+    this.p_freq_ramp = -0.5 - Math.random() * 0.3;
+    this.p_env_attack = 0;
+    this.p_env_sustain = 0.05 + Math.random() * 0.1;
+    this.p_env_decay = 0.1 + Math.random() * 0.2;
+    this.p_duty = -0.2 + Math.random() * 0.4;
+    this.distortion = 0.1 + Math.random() * 0.3;
+    return this;
+  }
+
+  woosh() {
+    this.reset();
+    this.wave_type = NOISE;
+    this.noise_type = 1; // Pink noise
+    this.p_base_freq = 0.1 + Math.random() * 0.2;
+    this.p_env_attack = 0.1 + Math.random() * 0.3;
+    this.p_env_sustain = 0.2 + Math.random() * 0.4;
+    this.p_env_decay = 0.3 + Math.random() * 0.5;
+    this.p_lpf_freq = 0.3 + Math.random() * 0.4;
+    this.p_lpf_ramp = -0.2 - Math.random() * 0.3;
+    this.reverb_size = 0.3 + Math.random() * 0.4;
+    return this;
+  }
+
+  drone() {
+    this.reset();
+    this.wave_type = SAWTOOTH;
+    this.p_base_freq = 0.05 + Math.random() * 0.15;
+    this.p_env_attack = 0.5 + Math.random() * 1.0;
+    this.p_env_sustain = 2.0 + Math.random() * 2.0;
+    this.p_env_decay = 1.0 + Math.random() * 2.0;
+    this.p_vib_speed = 0.1 + Math.random() * 0.2;
+    this.p_vib_strength = 0.05 + Math.random() * 0.1;
+    this.chorus_rate = 0.1 + Math.random() * 0.2;
+    this.chorus_depth = 0.2 + Math.random() * 0.3;
+    this.p_lpf_freq = 0.4 + Math.random() * 0.3;
+    return this;
+  }
+
+  click() {
+    this.reset();
+    this.wave_type = SQUARE;
+    this.p_base_freq = 0.8 + Math.random() * 0.2;
+    this.p_env_attack = 0;
+    this.p_env_sustain = 0.01;
+    this.p_env_decay = 0.02 + Math.random() * 0.03;
+    this.p_duty = 0.1 + Math.random() * 0.2;
+    this.p_hpf_freq = 0.2 + Math.random() * 0.3;
+    return this;
+  }
+
+  glitch() {
+    this.reset();
+    this.wave_type = Math.floor(Math.random() * 3);
+    this.p_base_freq = 0.2 + Math.random() * 0.6;
+    this.p_env_attack = 0;
+    this.p_env_sustain = 0.05 + Math.random() * 0.1;
+    this.p_env_decay = 0.1 + Math.random() * 0.3;
+    this.p_arp_speed = 0.8 + Math.random() * 0.2;
+    this.p_arp_mod = -0.5 + Math.random() * 1.0;
+    this.bit_crush = 0.3 + Math.random() * 0.5;
+    this.distortion = 0.2 + Math.random() * 0.4;
+    this.p_repeat_speed = 0.3 + Math.random() * 0.4;
+    return this;
+  }
+
+  portal() {
+    this.reset();
+    this.wave_type = SINE;
+    this.p_base_freq = 0.3 + Math.random() * 0.3;
+    this.p_env_attack = 0.2 + Math.random() * 0.3;
+    this.p_env_sustain = 0.5 + Math.random() * 0.5;
+    this.p_env_decay = 0.8 + Math.random() * 1.0;
+    this.fm_freq = 0.3 + Math.random() * 0.4;
+    this.fm_depth = 0.4 + Math.random() * 0.6;
+    this.ring_mod_freq = 0.1 + Math.random() * 0.3;
+    this.ring_mod_depth = 0.2 + Math.random() * 0.3;
+    this.reverb_size = 0.6 + Math.random() * 0.4;
+    this.delay_time = 0.2 + Math.random() * 0.3;
+    this.delay_feedback = 0.3 + Math.random() * 0.4;
+    return this;
+  }
+
+  warning() {
+    this.reset();
+    this.wave_type = SQUARE;
+    this.p_base_freq = 0.15 + Math.random() * 0.1;
+    this.p_env_attack = 0;
+    this.p_env_sustain = 0.3 + Math.random() * 0.2;
+    this.p_env_decay = 0.1 + Math.random() * 0.2;
+    this.p_duty = -0.3 + Math.random() * 0.2;
+    this.p_repeat_speed = 0.5 + Math.random() * 0.3;
+    this.distortion = 0.1 + Math.random() * 0.2;
+    this.p_lpf_freq = 0.6 + Math.random() * 0.3;
+    return this;
+  }
+
   random() {
     this.reset();
     this.wave_type = Math.floor(Math.random() * 4);
@@ -325,6 +436,68 @@ class AudioSynthesizer {
     const bits = Math.floor(16 - amount * 15);
     const levels = Math.pow(2, bits);
     return Math.floor(sample * levels) / levels;
+  }
+
+  async generateBufferWithSettings(params, duration = 1.0, customSampleRate = null, customBitDepth = null) {
+    const targetSampleRate = customSampleRate || this.audioContext.sampleRate;
+    const targetBitDepth = customBitDepth || 16;
+    
+    // Generate buffer at full resolution first - AWAIT this since it's async
+    const buffer = await this.generateBuffer(params, duration);
+    
+    // Check if buffer generation failed
+    if (!buffer || !buffer.getChannelData) {
+      console.error('generateBuffer returned invalid buffer:', buffer);
+      return null;
+    }
+    
+    try {
+      const originalData = buffer.getChannelData(0);
+      const originalSampleRate = this.audioContext.sampleRate;
+      
+      // If we need to downsample, do it
+      if (targetSampleRate < originalSampleRate) {
+        console.log(`Downsampling from ${originalSampleRate}Hz to ${targetSampleRate}Hz`);
+        
+        // Calculate the downsampling ratio
+        const ratio = originalSampleRate / targetSampleRate;
+        const newLength = Math.floor(originalData.length / ratio);
+        
+        // Create downsampled data
+        const downsampledData = new Float32Array(newLength);
+        for (let i = 0; i < newLength; i++) {
+          const sourceIndex = Math.floor(i * ratio);
+          downsampledData[i] = originalData[sourceIndex];
+        }
+        
+        // Now upsample back to original rate for playback (with no interpolation for pixelated effect)
+        const upsampledData = new Float32Array(originalData.length);
+        for (let i = 0; i < originalData.length; i++) {
+          const downsampledIndex = Math.floor((i / originalData.length) * newLength);
+          upsampledData[i] = downsampledData[Math.min(downsampledIndex, newLength - 1)];
+        }
+        
+        // Copy the processed data back
+        originalData.set(upsampledData);
+      }
+      
+      // Apply bit depth reduction
+      if (targetBitDepth < 16) {
+        console.log(`Applying bit depth reduction to ${targetBitDepth} bits`);
+        const levels = Math.pow(2, targetBitDepth - 1) - 1;
+        
+        for (let i = 0; i < originalData.length; i++) {
+          // Quantize to the target bit depth
+          const quantized = Math.floor(originalData[i] * levels) / levels;
+          originalData[i] = Math.max(-1, Math.min(1, quantized));
+        }
+      }
+      
+      return buffer;
+    } catch (error) {
+      console.error('Error in generateBufferWithSettings:', error);
+      return null;
+    }
   }
 
   async generateBuffer(params, duration = 1.0) {
@@ -463,6 +636,17 @@ class AudioSynthesizer {
             envelope = Math.max(0, 1 - decayProgress);
           } else {
             envelope = 0;
+          }
+
+          // retrigger logic
+          if (safeParams.p_repeat_speed > 0) {
+            const retriggerRate = safeParams.p_repeat_speed * 20; // Hz
+            const retriggerPeriod = sampleRate / retriggerRate;
+            const retriggerPhase = (i % retriggerPeriod) / retriggerPeriod;
+            
+            if (retriggerPhase < 0.1) { // 10% of period for retrigger
+              envelope *= retriggerPhase / 0.1; // Fade in
+            }
           }
 
           // Arpeggiator with bounds checking
@@ -751,8 +935,256 @@ const WaveformDisplay = ({ audioBuffer, isPlaying, title = "Waveform" }) => {
   );
 };
 
-// Spectrum analyzer
+const ParameterInfo = ({ title, description, technical }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  
+  return (
+    <div className="relative inline-block">
+      <button
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        className="ml-1 w-4 h-4 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center hover:bg-blue-400"
+      >
+        i
+      </button>
+      
+      {showTooltip && (
+        <div className="absolute z-50 w-80 p-3 bg-gray-800 border border-gray-600 rounded-lg shadow-lg bottom-6 left-0">
+          <h4 className="font-semibold text-white mb-2">{title}</h4>
+          <p className="text-sm text-gray-300 mb-2">{description}</p>
+          <p className="text-xs text-gray-400 italic">{technical}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Enhanced spectrum analyzer with real FFT
 const SpectrumAnalyzer = ({ audioBuffer }) => {
+  const canvasRef = useRef(null);
+
+  // Simple DFT implementation for frequency analysis
+  const computeDFT = (samples, sampleRate) => {
+    const N = Math.min(1024, samples.length);
+    const frequencies = new Float32Array(N / 2);
+    
+    for (let k = 0; k < N / 2; k++) {
+      let realSum = 0;
+      let imagSum = 0;
+      
+      for (let n = 0; n < N; n++) {
+        const angle = -2 * Math.PI * k * n / N;
+        const sample = samples[n] || 0;
+        realSum += sample * Math.cos(angle);
+        imagSum += sample * Math.sin(angle);
+      }
+      
+      // Calculate magnitude
+      frequencies[k] = Math.sqrt(realSum * realSum + imagSum * imagSum) / N;
+    }
+    
+    return frequencies;
+  };
+
+  useEffect(() => {
+    if (!audioBuffer || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const data = audioBuffer.getChannelData(0);
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Background
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Find a good analysis window - look for the section with highest energy
+    const windowSize = 1024;
+    let maxRMS = 0;
+    let bestStart = 0;
+    
+    // Sample different parts of the audio to find the most representative section
+    const numSamples = Math.min(10, Math.floor(data.length / windowSize));
+    for (let i = 0; i < numSamples; i++) {
+      const start = Math.floor((i / numSamples) * (data.length - windowSize));
+      let rms = 0;
+      
+      for (let j = 0; j < windowSize && start + j < data.length; j++) {
+        const sample = data[start + j];
+        rms += sample * sample;
+      }
+      
+      rms = Math.sqrt(rms / windowSize);
+      if (rms > maxRMS) {
+        maxRMS = rms;
+        bestStart = start;
+      }
+    }
+    
+    // If no significant signal found, use the beginning
+    if (maxRMS < 0.001) {
+      bestStart = 0;
+    }
+    
+    // Extract and window the audio
+    const analysisWindow = new Float32Array(windowSize);
+    for (let i = 0; i < windowSize; i++) {
+      if (bestStart + i < data.length) {
+        // Apply Hann window to reduce spectral leakage
+        const windowValue = 0.5 * (1 - Math.cos(2 * Math.PI * i / (windowSize - 1)));
+        analysisWindow[i] = data[bestStart + i] * windowValue;
+      } else {
+        analysisWindow[i] = 0;
+      }
+    }
+    
+    // Compute frequency spectrum
+    const spectrum = computeDFT(analysisWindow, audioBuffer.sampleRate);
+    
+    // Group frequencies into display bins (logarithmic spacing for better musical representation)
+    const numBins = 32;
+    const displaySpectrum = new Float32Array(numBins);
+    const nyquist = audioBuffer.sampleRate / 2;
+    
+    for (let bin = 0; bin < numBins; bin++) {
+      // Logarithmic frequency distribution (more like how we hear)
+      const freqStart = Math.pow(2, (bin / numBins) * Math.log2(nyquist / 20)) * 20;
+      const freqEnd = Math.pow(2, ((bin + 1) / numBins) * Math.log2(nyquist / 20)) * 20;
+      
+      const startIdx = Math.floor(freqStart / nyquist * spectrum.length);
+      const endIdx = Math.floor(freqEnd / nyquist * spectrum.length);
+      
+      let sum = 0;
+      let count = 0;
+      
+      for (let i = startIdx; i < endIdx && i < spectrum.length; i++) {
+        sum += spectrum[i];
+        count++;
+      }
+      
+      displaySpectrum[bin] = count > 0 ? sum / count : 0;
+    }
+    
+    // Find max for normalization
+    const maxValue = Math.max(...displaySpectrum);
+    
+    if (maxValue > 0) {
+      // Draw spectrum bars
+      const binWidth = canvas.width / numBins;
+      
+      for (let i = 0; i < numBins; i++) {
+        const normalizedHeight = displaySpectrum[i] / maxValue;
+        const height = normalizedHeight * canvas.height * 0.8;
+        
+        // Color based on frequency (low = blue, mid = purple, high = red)
+        const hue = 240 - (i / numBins) * 120; // 240 (blue) to 120 (red)
+        const saturation = 70;
+        const lightness = 40 + normalizedHeight * 30; // Brighter for stronger signals
+        
+        ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        ctx.fillRect(i * binWidth, canvas.height - height, binWidth - 1, height);
+      }
+    } else {
+      // Show "No signal" message
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('No signal detected', canvas.width / 2, canvas.height / 2);
+      ctx.textAlign = 'left';
+    }
+    
+    // Add frequency labels
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '9px monospace';
+    ctx.fillText('20Hz', 2, canvas.height - 2);
+    ctx.fillText('1kHz', canvas.width * 0.4, canvas.height - 2);
+    ctx.fillText(`${Math.round(audioBuffer.sampleRate/2000)}kHz`, canvas.width - 30, canvas.height - 2);
+    
+  }, [audioBuffer]);
+
+  return (
+    <div>
+      <h3 className="text-lg font-semibold mb-2 text-white">Frequency Spectrum</h3>
+      <canvas
+        ref={canvasRef}
+        width={200}
+        height={100}
+        className="w-full h-20 bg-gray-900 rounded border border-gray-700"
+      />
+    </div>
+  );
+};
+
+const AmplitudeMeter = ({ audioBuffer, title = "Signal Level" }) => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!audioBuffer || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const data = audioBuffer.getChannelData(0);
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Calculate peak and RMS levels
+    let peak = 0;
+    let rmsSum = 0;
+    
+    for (let i = 0; i < data.length; i++) {
+      const sample = Math.abs(data[i]);
+      peak = Math.max(peak, sample);
+      rmsSum += sample * sample;
+    }
+    
+    const rms = Math.sqrt(rmsSum / data.length);
+    
+    // Convert to dB
+    const peakDb = peak > 0 ? 20 * Math.log10(peak) : -100;
+    const rmsDb = rms > 0 ? 20 * Math.log10(rms) : -100;
+    
+    // Draw background
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw level bars (-60dB to 0dB range)
+    const dbRange = 60;
+    const peakHeight = Math.max(0, (peakDb + dbRange) / dbRange) * canvas.height;
+    const rmsHeight = Math.max(0, (rmsDb + dbRange) / dbRange) * canvas.height;
+    
+    // RMS level (darker)
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(0, canvas.height - rmsHeight, canvas.width * 0.4, rmsHeight);
+    
+    // Peak level (brighter)
+    ctx.fillStyle = peak > 0.95 ? '#ef4444' : '#10b981'; // Red if clipping
+    ctx.fillRect(canvas.width * 0.5, canvas.height - peakHeight, canvas.width * 0.4, peakHeight);
+    
+    // Labels
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '10px monospace';
+    ctx.fillText('RMS', 2, 12);
+    ctx.fillText('PEAK', canvas.width * 0.5 + 2, 12);
+    ctx.fillText(`${rmsDb.toFixed(1)}dB`, 2, canvas.height - 2);
+    ctx.fillText(`${peakDb.toFixed(1)}dB`, canvas.width * 0.5 + 2, canvas.height - 2);
+    
+  }, [audioBuffer]);
+
+  return (
+    <div>
+      <h3 className="text-lg font-semibold mb-2 text-white">{title}</h3>
+      <canvas
+        ref={canvasRef}
+        width={200}
+        height={100}
+        className="w-full h-20 bg-gray-900 rounded border border-gray-700"
+      />
+    </div>
+  );
+};
+
+const AmplitudeEnvelope = ({ audioBuffer, title = "Volume Envelope" }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -768,55 +1200,130 @@ const SpectrumAnalyzer = ({ audioBuffer }) => {
     ctx.fillStyle = '#111827';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    const bins = 32;
-    const binWidth = canvas.width / bins;
+    // Calculate envelope by taking RMS of windows
+    const windowSize = Math.floor(data.length / canvas.width);
+    const envelope = [];
     
-    for (let i = 0; i < bins; i++) {
-      const start = Math.floor(i * data.length / bins);
-      const end = Math.floor((i + 1) * data.length / bins);
+    for (let i = 0; i < canvas.width; i++) {
       let sum = 0;
+      const start = i * windowSize;
+      const end = Math.min(start + windowSize, data.length);
       
       for (let j = start; j < end; j++) {
-        sum += Math.abs(data[j] || 0);
+        sum += data[j] * data[j];
       }
       
-      const height = Math.min((sum / (end - start)) * canvas.height * 2, canvas.height);
-      
-      // Gradient bars
-      const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
-      gradient.addColorStop(0, '#3b82f6');
-      gradient.addColorStop(0.5, '#8b5cf6');
-      gradient.addColorStop(1, '#ef4444');
-      
-      ctx.fillStyle = gradient;
-      ctx.fillRect(i * binWidth, canvas.height - height, binWidth - 1, height);
+      envelope.push(Math.sqrt(sum / (end - start)));
     }
+    
+    // Find max for normalization
+    const maxEnv = Math.max(...envelope);
+    
+    // Draw envelope
+    ctx.strokeStyle = '#f59e0b';
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    
+    // Fill area under curve
+    ctx.moveTo(0, canvas.height);
+    for (let i = 0; i < envelope.length; i++) {
+      const normalizedHeight = maxEnv > 0 ? (envelope[i] / maxEnv) : 0;
+      const y = canvas.height - (normalizedHeight * canvas.height * 0.8);
+      ctx.lineTo(i, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Draw envelope line
+    ctx.beginPath();
+    for (let i = 0; i < envelope.length; i++) {
+      const normalizedHeight = maxEnv > 0 ? (envelope[i] / maxEnv) : 0;
+      const y = canvas.height - (normalizedHeight * canvas.height * 0.8);
+      if (i === 0) ctx.moveTo(i, y);
+      else ctx.lineTo(i, y);
+    }
+    ctx.stroke();
+    
+    // Add time labels
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '10px monospace';
+    const duration = audioBuffer.length / audioBuffer.sampleRate;
+    ctx.fillText('0s', 2, canvas.height - 2);
+    ctx.fillText(`${duration.toFixed(2)}s`, canvas.width - 30, canvas.height - 2);
+    
   }, [audioBuffer]);
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-2 text-white">Spectrum</h3>
+      <h3 className="text-lg font-semibold mb-2 text-white">{title}</h3>
       <canvas
         ref={canvasRef}
-        width={200}
-        height={100}
-        className="w-full h-20 bg-gray-900 rounded border border-gray-700"
+        width={400}
+        height={60}
+        className="w-full h-12 bg-gray-900 rounded border border-gray-700"
       />
     </div>
   );
 };
 
+// Parameter information database
+const parameterInfo = {
+  p_base_freq: {
+    title: "Base Frequency",
+    description: "Controls the fundamental pitch of the sound. Higher values create higher pitched sounds.",
+    technical: "Frequency in normalized units (0-1), multiplied by 440Hz. 0.5 ≈ 220Hz, 1.0 ≈ 440Hz (A4)"
+  },
+  p_freq_ramp: {
+    title: "Frequency Ramp", 
+    description: "Makes the pitch slide up (positive) or down (negative) over time.",
+    technical: "Linear frequency modulation rate. Creates sweep effects, dive bombs, or rising tones."
+  },
+  p_env_attack: {
+    title: "Attack Time",
+    description: "How quickly the sound reaches full volume when triggered.",
+    technical: "Attack phase duration in seconds. 0 = instant, higher values = slower fade-in."
+  },
+  p_env_decay: {
+    title: "Decay Time", 
+    description: "How quickly the sound fades out after the sustain phase.",
+    technical: "Exponential decay time constant. Controls the 'tail' length of the sound."
+  },
+  distortion: {
+    title: "Distortion",
+    description: "Adds harmonic saturation and grit to the sound.",
+    technical: "Hyperbolic tangent waveshaping with variable drive amount."
+  },
+  p_lpf_freq: {
+    title: "Low-Pass Filter",
+    description: "Removes high frequencies, making the sound darker/muffled.",
+    technical: "Simple RC low-pass filter. 1.0 = no filtering, 0.0 = maximum filtering."
+  },
+  sound_vol: {
+    title: "Master Volume",
+    description: "Overall amplitude/loudness of the generated sound.",
+    technical: "Linear amplitude multiplier. 0.5 = -6dB, 1.0 = 0dB (full scale)"
+  },
+  p_env_punch: {
+    title: "Sustain Punch", 
+    description: "Adds extra volume boost during the sustain phase.",
+    technical: "Amplitude envelope boost factor. Creates percussive 'punch' effect."
+  }
+};
+
 // Parameter slider
 const ParamSlider = ({ 
   label, 
-  value = 0, // Default value
+  value = 0,
   onChange, 
   min = 0, 
   max = 1, 
   step = 0.01, 
   locked = false, 
   onToggleLock,
-  suggestion = null 
+  suggestion = null,
+  info = null // for information about what it does
 }) => {
   const smoothValue = useSmoothParam(value, 0.1);
   
@@ -836,6 +1343,7 @@ const ParamSlider = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-white">{label}</label>
+          {info && <ParameterInfo {...info} />}
           {onToggleLock && (
             <button
               onClick={onToggleLock}
@@ -870,17 +1378,44 @@ const ParamSlider = ({
 };
 
 // WAV export utility
-function audioBufferToWav(audioBuffer) {
-  const numChannels = audioBuffer.numberOfChannels;
-  const sampleRate = audioBuffer.sampleRate;
-  const format = 1;
-  const bitDepth = 16;
+function audioBufferToWav(audioBuffer, targetSampleRate = null, targetBitDepth = 16) {
+  const originalSampleRate = audioBuffer.sampleRate;
+  const originalData = audioBuffer.getChannelData(0);
   
-  const bytesPerSample = bitDepth / 8;
+  // Determine final sample rate and bit depth
+  const finalSampleRate = targetSampleRate || originalSampleRate;
+  const finalBitDepth = targetBitDepth || 16;
+  
+  let finalData;
+  
+  // Downsample if needed
+  if (finalSampleRate < originalSampleRate) {
+    const ratio = originalSampleRate / finalSampleRate;
+    const newLength = Math.floor(originalData.length / ratio);
+    finalData = new Float32Array(newLength);
+    
+    for (let i = 0; i < newLength; i++) {
+      const sourceIndex = Math.floor(i * ratio);
+      finalData[i] = originalData[sourceIndex];
+    }
+  } else {
+    finalData = originalData;
+  }
+  
+  // Apply bit depth reduction
+  if (finalBitDepth < 16) {
+    const levels = Math.pow(2, finalBitDepth - 1) - 1;
+    for (let i = 0; i < finalData.length; i++) {
+      finalData[i] = Math.floor(finalData[i] * levels) / levels;
+    }
+  }
+  
+  const numChannels = 1;
+  const format = 1;
+  const bytesPerSample = finalBitDepth / 8;
   const blockAlign = numChannels * bytesPerSample;
   
-  const samples = audioBuffer.getChannelData(0);
-  const buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
+  const buffer = new ArrayBuffer(44 + finalData.length * bytesPerSample);
   const view = new DataView(buffer);
   
   const writeString = (offset, string) => {
@@ -897,22 +1432,95 @@ function audioBufferToWav(audioBuffer) {
   view.setUint32(offset, 16, true); offset += 4;
   view.setUint16(offset, format, true); offset += 2;
   view.setUint16(offset, numChannels, true); offset += 2;
-  view.setUint32(offset, sampleRate, true); offset += 4;
-  view.setUint32(offset, sampleRate * blockAlign, true); offset += 4;
+  view.setUint32(offset, finalSampleRate, true); offset += 4; // Use final sample rate
+  view.setUint32(offset, finalSampleRate * blockAlign, true); offset += 4;
   view.setUint16(offset, blockAlign, true); offset += 2;
-  view.setUint16(offset, bitDepth, true); offset += 2;
+  view.setUint16(offset, finalBitDepth, true); offset += 2; // Use final bit depth
   writeString(offset, 'data'); offset += 4;
-  view.setUint32(offset, samples.length * bytesPerSample, true); offset += 4;
+  view.setUint32(offset, finalData.length * bytesPerSample, true); offset += 4;
   
-  for (let i = 0; i < samples.length; i++) {
-    const sample = Math.max(-1, Math.min(1, samples[i]));
-    const intSample = Math.floor(sample * 0x7FFF);
-    view.setInt16(offset, intSample, true);
-    offset += 2;
+  // Write samples based on bit depth
+  if (finalBitDepth === 8) {
+    for (let i = 0; i < finalData.length; i++) {
+      const sample = Math.max(-1, Math.min(1, finalData[i]));
+      const intSample = Math.floor((sample + 1) * 127.5); // Convert to 0-255 range for 8-bit
+      view.setUint8(offset, intSample);
+      offset += 1;
+    }
+  } else {
+    // 16-bit
+    for (let i = 0; i < finalData.length; i++) {
+      const sample = Math.max(-1, Math.min(1, finalData[i]));
+      const intSample = Math.floor(sample * 0x7FFF);
+      view.setInt16(offset, intSample, true);
+      offset += 2;
+    }
   }
   
   return new Blob([buffer], { type: 'audio/wav' });
 }
+
+
+// Add these utility functions before the CompleteCrispFXR component
+function encodeParams(params) {
+  // Simple base64 encoding of parameters for sharing
+  const paramString = JSON.stringify(params);
+  return btoa(paramString).replace(/[+/=]/g, (m) => ({ '+': '-', '/': '_', '=': '' }[m]));
+}
+
+function decodeParams(encoded) {
+  try {
+    const restored = encoded.replace(/[-_]/g, (m) => ({ '-': '+', '_': '/' }[m]));
+    const padded = restored + '==='.slice((restored.length + 3) % 4);
+    const paramString = atob(padded);
+    return JSON.parse(paramString);
+  } catch (e) {
+    console.error('Failed to decode parameters:', e);
+    return null;
+  }
+}
+
+function detectClipping(audioBuffer, threshold = 0.95) {
+  if (!audioBuffer) return false;
+  const data = audioBuffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    if (Math.abs(data[i]) >= threshold) return true;
+  }
+  return false;
+}
+
+
+const NumericInput = ({ label, value, onChange, min = -1, max = 1, step = 0.01, locked = false, onToggleLock }) => {
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-white">{label}</label>
+          {onToggleLock && (
+            <button
+              onClick={onToggleLock}
+              className={`p-1 rounded ${locked ? 'text-yellow-400' : 'text-gray-500'} hover:text-yellow-300`}
+            >
+              {locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+            </button>
+          )}
+        </div>
+      </div>
+      
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={value || 0}
+        onChange={(e) => !locked && onChange(parseFloat(e.target.value) || 0)}
+        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm"
+        disabled={locked}
+      />
+    </div>
+  );
+};
+
 
 // Main component
 export default function CompleteCrispFXR() {
@@ -930,6 +1538,13 @@ export default function CompleteCrispFXR() {
   const [isLooping, setIsLooping] = useState(false);
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  const [redoHistory, setRedoHistory] = useState([]);
+  const [showNumericInputs, setShowNumericInputs] = useState(false);
+  const [sampleRate, setSampleRate] = useState(44100);
+  const [bitDepth, setBitDepth] = useState(16);
+  const [isClipping, setIsClipping] = useState(false);
+  const [currentShareLink, setCurrentShareLink] = useState('');
 
   // Error boundary and logging
   useEffect(() => {
@@ -975,6 +1590,35 @@ export default function CompleteCrispFXR() {
     initSynth();
   }, []);
 
+  useEffect(() => {
+    const loadFromURL = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const soundParam = urlParams.get('sound');
+      
+      if (soundParam) {
+        console.log('Found sound parameter in URL:', soundParam);
+        const decodedParams = decodeParams(soundParam);
+        if (decodedParams) {
+          console.log('Successfully decoded parameters:', decodedParams);
+          setParams(decodedParams);
+          
+          // Also update the history
+          setHistory(hist => [...hist, decodedParams]);
+          setHistoryIndex(0);
+          
+          // Clear the URL parameter after loading (optional)
+          // window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+          console.error('Failed to decode parameters from URL');
+        }
+      }
+    };
+
+    // Small delay to ensure component is fully mounted
+    const timer = setTimeout(loadFromURL, 100);
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array ensures this only runs once on mount
+
   const loopIntervalRef = useRef(null);
 
   const updateParam = useCallback((param, value) => {
@@ -998,6 +1642,78 @@ export default function CompleteCrispFXR() {
     }
   }, [lockedParams, activeSlot, historyIndex]);
 
+  const redo = useCallback(() => {
+    if (redoHistory.length > 0) {
+      const nextParams = redoHistory[redoHistory.length - 1];
+      setRedoHistory(prev => prev.slice(0, -1));
+      
+      if (activeSlot === 'A') {
+        setParams(nextParams);
+      } else {
+        setParamsB(nextParams);
+      }
+      
+      // Add current state to undo history
+      setHistory(hist => [...hist, nextParams]);
+      setHistoryIndex(prev => prev + 1);
+    }
+  }, [redoHistory, activeSlot]);
+
+  const mutateParams = useCallback(() => {
+    const currentParams = activeSlot === 'A' ? params : paramsB;
+    const mutated = { ...currentParams };
+    
+    // Randomly select 2-4 parameters to mutate
+    const paramKeys = Object.keys(mutated).filter(key => typeof mutated[key] === 'number');
+    const numToMutate = 2 + Math.floor(Math.random() * 3);
+    
+    for (let i = 0; i < numToMutate; i++) {
+      const randomKey = paramKeys[Math.floor(Math.random() * paramKeys.length)];
+      const currentValue = mutated[randomKey];
+      const mutationAmount = (Math.random() - 0.5) * 0.2; // ±10% change
+      mutated[randomKey] = Math.max(-1, Math.min(1, currentValue + mutationAmount));
+    }
+    
+    if (activeSlot === 'A') {
+      setParams(mutated);
+    } else {
+      setParamsB(mutated);
+    }
+    
+    // Save to history
+    setHistory(hist => [...hist.slice(0, historyIndex + 1), mutated]);
+    setHistoryIndex(prev => prev + 1);
+    setRedoHistory([]); // Clear redo history
+  }, [params, paramsB, activeSlot, historyIndex]);
+
+  const generateShareLink = useCallback(() => {
+    const currentParams = activeSlot === 'A' ? params : paramsB;
+    const encoded = encodeParams(currentParams);
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?sound=${encoded}`;
+    setCurrentShareLink(shareUrl);
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      console.log('Share link copied to clipboard:', shareUrl);
+      // You could add a toast notification here
+    }).catch(err => {
+      console.error('Failed to copy to clipboard:', err);
+      // Fallback: show the URL in an alert
+      alert(`Copy this link: ${shareUrl}`);
+    });
+  }, [params, paramsB, activeSlot]);
+
+  const copyParamsAsBase58 = useCallback(() => {
+    const currentParams = activeSlot === 'A' ? params : paramsB;
+    const encoded = encodeParams(currentParams);
+    navigator.clipboard.writeText(encoded).then(() => {
+      console.log('Parameters copied as base58');
+    }).catch(err => {
+      console.error('Failed to copy to clipboard:', err);
+    });
+  }, [params, paramsB, activeSlot]);
+
   const toggleParamLock = useCallback((param) => {
     setLockedParams(prev => {
       const newSet = new Set(prev);
@@ -1020,21 +1736,21 @@ export default function CompleteCrispFXR() {
       }
       
       let currentParams = activeSlot === 'A' ? params : paramsB;
-      console.log('Current params:', currentParams);
       
-      // Validate parameters first
       if (!currentParams) {
         console.warn('No currentParams, creating default');
         currentParams = new SynthParams();
       }
       
-      // Create a validated copy
+      // Update sample rate and bit depth in params
+      currentParams.sample_rate = sampleRate;
+      currentParams.sample_size = bitDepth;
+      
       let validatedParams = Object.assign(new SynthParams(), currentParams);
       if (validatedParams.validate) {
         validatedParams = validatedParams.validate();
       }
       
-      // Apply morphing if enabled
       if (morphAmount > 0 && morphAmount < 1) {
         const sourceParams = activeSlot === 'A' ? params : paramsB;
         const targetParams = activeSlot === 'A' ? paramsB : params;
@@ -1052,8 +1768,17 @@ export default function CompleteCrispFXR() {
       }
       
       console.log('About to generate buffer...');
-      const buffer = await synthRef.current.generateBuffer(validatedParams, 1.5); // ADD AWAIT!
-      console.log('Buffer generated:', buffer);
+      const buffer = await synthRef.current.generateBufferWithSettings(validatedParams, 1.5, sampleRate, bitDepth);
+
+      if (!buffer) {
+        console.error('Failed to generate buffer');
+        return;
+      }
+
+      console.log('Buffer generated successfully:', buffer);
+      
+      // Check for clipping
+      setIsClipping(detectClipping(buffer));
       
       if (activeSlot === 'A') {
         setAudioBuffer(buffer);
@@ -1064,7 +1789,7 @@ export default function CompleteCrispFXR() {
       console.error('Error generating sound:', error);
       console.error('Stack trace:', error.stack);
     }
-  }, [params, paramsB, activeSlot, morphAmount]);
+  }, [params, paramsB, activeSlot, morphAmount, sampleRate, bitDepth]);
 
   const playSound = useCallback(async (slot = activeSlot) => {
     const buffer = slot === 'A' ? audioBuffer : audioBufferB;
@@ -1166,14 +1891,15 @@ export default function CompleteCrispFXR() {
     if (!buffer) return;
     
     if (exportFormat === 'wav') {
-      const wavBlob = audioBufferToWav(buffer);
-      downloadBlob(wavBlob, `crispfxr-sound-${activeSlot}-${Date.now()}.wav`);
+      // Pass the current sample rate and bit depth settings
+      const wavBlob = audioBufferToWav(buffer, sampleRate, bitDepth);
+      downloadBlob(wavBlob, `crispfxr-sound-${activeSlot}-${sampleRate}hz-${bitDepth}bit-${Date.now()}.wav`);
     } else if (exportFormat === 'json') {
       const jsonData = JSON.stringify(currentParams, null, 2);
       const jsonBlob = new Blob([jsonData], { type: 'application/json' });
       downloadBlob(jsonBlob, `crispfxr-preset-${activeSlot}-${Date.now()}.json`);
     }
-  }, [audioBuffer, audioBufferB, exportFormat, params, paramsB, activeSlot]);
+  }, [audioBuffer, audioBufferB, exportFormat, params, paramsB, activeSlot, sampleRate, bitDepth]);
 
   const downloadBlob = (blob, filename) => {
     const url = URL.createObjectURL(blob);
@@ -1235,17 +1961,33 @@ export default function CompleteCrispFXR() {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
           case 'z':
+          if (e.shiftKey) {
+            e.preventDefault();
+            redo();
+          } else {
             e.preventDefault();
             undo();
-            break;
-          default:
-            break;
-        }
+          }
+          break;
+        case 'm':
+          e.preventDefault();
+          mutateParams();
+          break;
+        case 's':
+          e.preventDefault();
+          generateShareLink();
+          break;
+        default:
+          break;
+      }
       } else {
         switch (e.key) {
           case ' ':
             e.preventDefault();
             playSound();
+            break;
+          case 'n':
+            setShowNumericInputs(!showNumericInputs);
             break;
           case '1':
           case '2':
@@ -1260,6 +2002,30 @@ export default function CompleteCrispFXR() {
             if (presetNames[presetIndex]) {
               loadPreset(presetNames[presetIndex]);
             }
+            break;
+          case '9':
+            loadPreset('blip');
+            break;
+          case 'q':
+            loadPreset('zap');
+            break;
+          case 'w':
+            loadPreset('woosh');
+            break;
+          case 'e':
+            loadPreset('drone');
+            break;
+          case 'r':
+            loadPreset('click');
+            break;
+          case 't':
+            loadPreset('glitch');
+            break;
+          case 'y':
+            loadPreset('portal');
+            break;
+          case 'u':
+            loadPreset('warning');
             break;
           case 'a':
             setActiveSlot('A');
@@ -1278,7 +2044,7 @@ export default function CompleteCrispFXR() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [undo, playSound, loadPreset, toggleLoop]);
+  }, [undo, redo, playSound, loadPreset, toggleLoop, mutateParams, generateShareLink, showNumericInputs]);
 
   const currentParams = activeSlot === 'A' ? params : paramsB;
   const currentBuffer = activeSlot === 'A' ? audioBuffer : audioBufferB;
@@ -1291,7 +2057,15 @@ export default function CompleteCrispFXR() {
     { name: 'hitHurt', label: 'Hit (5)', color: 'bg-purple-600' },
     { name: 'jump', label: 'Jump (6)', color: 'bg-blue-600' },
     { name: 'ambient', label: 'Ambient (7)', color: 'bg-teal-600' },
-    { name: 'random', label: 'Random (8)', color: 'bg-gray-600' }
+    { name: 'random', label: 'Random (8)', color: 'bg-gray-600' },
+    { name: 'blip', label: 'Blip (9)', color: 'bg-cyan-600' },
+    { name: 'zap', label: 'Zap (Q)', color: 'bg-lime-600' },
+    { name: 'woosh', label: 'Woosh (W)', color: 'bg-indigo-600' },
+    { name: 'drone', label: 'Drone (E)', color: 'bg-rose-600' },
+    { name: 'click', label: 'Click (R)', color: 'bg-amber-600' },
+    { name: 'glitch', label: 'Glitch (T)', color: 'bg-fuchsia-600' },
+    { name: 'portal', label: 'Portal (Y)', color: 'bg-emerald-600' },
+    { name: 'warning', label: 'Warning (U)', color: 'bg-red-700' }
   ];
 
   const waveTypes = ['Square', 'Sawtooth', 'Sine', 'Noise'];
@@ -1456,7 +2230,7 @@ export default function CompleteCrispFXR() {
         </div>
 
         {/* Visualization Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
           <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
             <WaveformDisplay 
               audioBuffer={audioBuffer} 
@@ -1476,6 +2250,15 @@ export default function CompleteCrispFXR() {
           <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
             <SpectrumAnalyzer audioBuffer={currentBuffer} />
           </div>
+
+          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
+            <AmplitudeMeter audioBuffer={currentBuffer} />
+          </div>
+        </div>
+
+        {/* Additional envelope display */}
+        <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 mb-8">
+          <AmplitudeEnvelope audioBuffer={currentBuffer} />
         </div>
 
         {/* Presets */}
@@ -1497,9 +2280,125 @@ export default function CompleteCrispFXR() {
           </div>
         </div>
 
+        {/* Audio Quality & Export Controls */}
+        <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Sample Rate & Bit Depth */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-white">Audio Quality</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-white mb-2 block">Sample Rate</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[44100, 22050, 11025, 8000].map(rate => (
+                      <button
+                        key={rate}
+                        onClick={() => setSampleRate(rate)}
+                        className={`px-3 py-2 rounded text-sm transition-colors ${
+                          sampleRate === rate 
+                            ? 'bg-orange-600 text-white' 
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}
+                      >
+                        {rate >= 1000 ? `${Math.round(rate/1000)}K` : `${rate}`}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    Current: {sampleRate >= 1000 ? `${(sampleRate/1000).toFixed(1)}K` : sampleRate}Hz
+                    {sampleRate < 44100 && " (Lo-Fi)"}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-white mb-2 block">Bit Depth</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[16, 8].map(bits => (
+                      <button
+                        key={bits}
+                        onClick={() => setBitDepth(bits)}
+                        className={`px-3 py-2 rounded text-sm transition-colors ${
+                          bitDepth === bits 
+                            ? 'bg-orange-600 text-white' 
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}
+                      >
+                        {bits} bit
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    Current: {bitDepth} bit{bitDepth < 16 && " (Retro)"}
+                  </div>
+                </div>
+                
+                {/* Clipping Indicator */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white">Clipped:</span>
+                  <div className={`w-4 h-4 rounded ${isClipping ? 'bg-red-500' : 'bg-gray-600'}`}></div>
+                  <span className="text-xs text-gray-400">{isClipping ? 'Yes' : 'No'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* New Action Buttons */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-white">Actions</h3>
+              <div className="space-y-3">
+                <button
+                  onClick={mutateParams}
+                  className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2 font-semibold"
+                >
+                  <Shuffle className="w-4 h-4" />
+                  Mutate
+                </button>
+                
+                <button
+                  onClick={redo}
+                  disabled={redoHistory.length === 0}
+                  className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 rounded-lg transition-colors flex items-center gap-2 font-semibold"
+                >
+                  <RotateCcw className="w-4 h-4 scale-x-[-1]" />
+                  Redo
+                </button>
+              </div>
+            </div>
+
+            {/* Sharing & Export */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-white">Share & Export</h3>
+              <div className="space-y-3">
+                <button
+                  onClick={generateShareLink}
+                  className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2 font-semibold"
+                >
+                  <Copy className="w-4 h-4" />
+                  Share Link
+                </button>
+                
+                <button
+                  onClick={copyParamsAsBase58}
+                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 font-semibold"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy Base58
+                </button>
+                
+                {currentShareLink && (
+                  <div className="text-xs text-gray-400 break-all">
+                    Link copied to clipboard!
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Parameter Controls */}
         <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
           {/* Tabs */}
+         <div className="flex justify-between items-center mb-6">
           <div className="flex space-x-1 mb-6 bg-gray-800/50 p-1 rounded-lg overflow-x-auto">
             {[
               { id: 'basic', label: 'Basic', icon: Settings },
@@ -1524,6 +2423,19 @@ export default function CompleteCrispFXR() {
               );
             })}
           </div>
+
+          {/* Input Type Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowNumericInputs(!showNumericInputs)}
+              className={`px-3 py-2 rounded-lg transition-colors text-sm ${
+                showNumericInputs ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
+              }`}
+            >
+              {showNumericInputs ? 'Sliders' : 'Numeric'}
+            </button>
+          </div>
+         </div> 
 
           {/* Parameter Panels */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1564,64 +2476,112 @@ export default function CompleteCrispFXR() {
                     </>
                   )}
                 </div>
-                
-                <ParamSlider
-                  label="Base Frequency"
-                  value={currentParams.p_base_freq}
-                  onChange={(v) => updateParam('p_base_freq', v)}
-                  locked={lockedParams.has('p_base_freq')}
-                  onToggleLock={() => toggleParamLock('p_base_freq')}
-                  suggestion={getParameterSuggestion('p_base_freq', currentParams.wave_type)}
-                />
-                <ParamSlider
-                  label="Frequency Ramp"
-                  value={currentParams.p_freq_ramp}
-                  onChange={(v) => updateParam('p_freq_ramp', v)}
-                  min={-1}
-                  max={1}
-                  locked={lockedParams.has('p_freq_ramp')}
-                  onToggleLock={() => toggleParamLock('p_freq_ramp')}
-                />
-                {currentParams.wave_type === SQUARE && (
+
+                {/* Use conditional rendering for slider vs numeric */}
+                {showNumericInputs ? (
+                  <>
+                    <NumericInput
+                      label="Base Frequency"
+                      value={currentParams.p_base_freq}
+                      onChange={(v) => updateParam('p_base_freq', v)}
+                      min={0}
+                      max={2}
+                      locked={lockedParams.has('p_base_freq')}
+                      onToggleLock={() => toggleParamLock('p_base_freq')}
+                    />
+                    <NumericInput
+                      label="Frequency Ramp"
+                      value={currentParams.p_freq_ramp}
+                      onChange={(v) => updateParam('p_freq_ramp', v)}
+                      locked={lockedParams.has('p_freq_ramp')}
+                      onToggleLock={() => toggleParamLock('p_freq_ramp')}
+                    />
+                    {/* Add NumericInput for new parameters */}
+                    <NumericInput
+                      label="Frequency Limit"
+                      value={currentParams.p_freq_limit}
+                      onChange={(v) => updateParam('p_freq_limit', v)}
+                      min={0}
+                      max={1}
+                      locked={lockedParams.has('p_freq_limit')}
+                      onToggleLock={() => toggleParamLock('p_freq_limit')}
+                    />
+                    <NumericInput
+                      label="Delta Slide"
+                      value={currentParams.p_freq_dramp}
+                      onChange={(v) => updateParam('p_freq_dramp', v)}
+                      locked={lockedParams.has('p_freq_dramp')}
+                      onToggleLock={() => toggleParamLock('p_freq_dramp')}
+                    />
+                  </>
+                ) : (
                   <>
                     <ParamSlider
-                      label="Duty Cycle"
-                      value={currentParams.p_duty}
-                      onChange={(v) => updateParam('p_duty', v)}
-                      min={-1}
-                      max={1}
-                      locked={lockedParams.has('p_duty')}
-                      onToggleLock={() => toggleParamLock('p_duty')}
-                      suggestion={getParameterSuggestion('p_duty', currentParams.wave_type)}
+                      label="Base Frequency"
+                      value={currentParams.p_base_freq}
+                      onChange={(v) => updateParam('p_base_freq', v)}
+                      min={0}
+                      max={2}
+                      locked={lockedParams.has('p_base_freq')}
+                      onToggleLock={() => toggleParamLock('p_base_freq')}
+                      info={parameterInfo.p_base_freq}
                     />
                     <ParamSlider
-                      label="Duty Ramp"
-                      value={currentParams.p_duty_ramp}
-                      onChange={(v) => updateParam('p_duty_ramp', v)}
+                      label="Frequency Ramp"
+                      value={currentParams.p_freq_ramp}
+                      onChange={(v) => updateParam('p_freq_ramp', v)}
                       min={-1}
                       max={1}
-                      locked={lockedParams.has('p_duty_ramp')}
-                      onToggleLock={() => toggleParamLock('p_duty_ramp')}
-                      suggestion={getParameterSuggestion('p_duty_ramp', currentParams.wave_type)}
+                      locked={lockedParams.has('p_freq_ramp')}
+                      onToggleLock={() => toggleParamLock('p_freq_ramp')}
+                    />
+                    {/* Add ParamSlider for new parameters */}
+                    <ParamSlider
+                      label="Frequency Limit"
+                      value={currentParams.p_freq_limit}
+                      onChange={(v) => updateParam('p_freq_limit', v)}
+                      min={0}
+                      max={1}
+                      locked={lockedParams.has('p_freq_limit')}
+                      onToggleLock={() => toggleParamLock('p_freq_limit')}
+                    />
+                    <ParamSlider
+                      label="Delta Slide"
+                      value={currentParams.p_freq_dramp}
+                      onChange={(v) => updateParam('p_freq_dramp', v)}
+                      min={-1}
+                      max={1}
+                      locked={lockedParams.has('p_freq_dramp')}
+                      onToggleLock={() => toggleParamLock('p_freq_dramp')}
                     />
                   </>
                 )}
-                <ParamSlider
-                  label="Sub-Bass"
-                  value={currentParams.sub_bass}
-                  onChange={(v) => updateParam('sub_bass', v)}
-                  locked={lockedParams.has('sub_bass')}
-                  onToggleLock={() => toggleParamLock('sub_bass')}
-                />
-                <ParamSlider
-                  label="Arpeggiation"
-                  value={currentParams.p_arp_mod}
-                  onChange={(v) => updateParam('p_arp_mod', v)}
-                  min={-1}
-                  max={1}
-                  locked={lockedParams.has('p_arp_mod')}
-                  onToggleLock={() => toggleParamLock('p_arp_mod')}
-                />
+                
+                {/* Add Retrigger section */}
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h4 className="font-semibold mb-3 text-orange-300">Retrigger</h4>
+                  {showNumericInputs ? (
+                    <NumericInput
+                      label="Rate"
+                      value={currentParams.p_repeat_speed}
+                      onChange={(v) => updateParam('p_repeat_speed', v)}
+                      min={0}
+                      max={1}
+                      locked={lockedParams.has('p_repeat_speed')}
+                      onToggleLock={() => toggleParamLock('p_repeat_speed')}
+                    />
+                  ) : (
+                    <ParamSlider
+                      label="Rate"
+                      value={currentParams.p_repeat_speed}
+                      onChange={(v) => updateParam('p_repeat_speed', v)}
+                      min={0}
+                      max={1}
+                      locked={lockedParams.has('p_repeat_speed')}
+                      onToggleLock={() => toggleParamLock('p_repeat_speed')}
+                    />
+                  )}
+                </div>
               </>
             )}
 
@@ -1741,6 +2701,29 @@ export default function CompleteCrispFXR() {
                   locked={lockedParams.has('flanger_delay')}
                   onToggleLock={() => toggleParamLock('flanger_delay')}
                 />
+
+                {/* Add LPF Resonance */}
+                {showNumericInputs ? (
+                  <NumericInput
+                    label="LPF Resonance"
+                    value={currentParams.p_lpf_resonance}
+                    onChange={(v) => updateParam('p_lpf_resonance', v)}
+                    min={0}
+                    max={1}
+                    locked={lockedParams.has('p_lpf_resonance')}
+                    onToggleLock={() => toggleParamLock('p_lpf_resonance')}
+                  />
+                ) : (
+                  <ParamSlider
+                    label="LPF Resonance"
+                    value={currentParams.p_lpf_resonance}
+                    onChange={(v) => updateParam('p_lpf_resonance', v)}
+                    min={0}
+                    max={1}
+                    locked={lockedParams.has('p_lpf_resonance')}
+                    onToggleLock={() => toggleParamLock('p_lpf_resonance')}
+                  />
+                )}
               </>
             )}
 
