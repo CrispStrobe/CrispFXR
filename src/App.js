@@ -2207,21 +2207,21 @@ export default function CompleteCrispFXR() {
   const currentBuffer = activeSlot === 'A' ? audioBuffer : audioBufferB;
 
   const presets = [
-    { name: 'pickupCoin', label: 'Pickup (1)', color: 'bg-yellow-600' },
-    { name: 'laserShoot', label: 'Laser (2)', color: 'bg-red-600' },
-    { name: 'explosion', label: 'Explosion (3)', color: 'bg-orange-600' },
-    { name: 'powerUp', label: 'PowerUp (4)', color: 'bg-green-600' },
-    { name: 'hitHurt', label: 'Hit (5)', color: 'bg-purple-600' },
-    { name: 'jump', label: 'Jump (6)', color: 'bg-blue-600' },
-    { name: 'ambient', label: 'Ambient (7)', color: 'bg-teal-600' },
-    { name: 'random', label: 'Random (8)', color: 'bg-gray-600' },
-    { name: 'blip', label: 'Blip (9)', color: 'bg-cyan-600' },
-    { name: 'zap', label: 'Zap (Q)', color: 'bg-lime-600' },
-    { name: 'woosh', label: 'Woosh (W)', color: 'bg-indigo-600' },
-    { name: 'drone', label: 'Drone (E)', color: 'bg-rose-600' },
-    { name: 'click', label: 'Click (R)', color: 'bg-amber-600' },
-    { name: 'glitch', label: 'Glitch (T)', color: 'bg-fuchsia-600' },
-    { name: 'portal', label: 'Portal (Y)', color: 'bg-emerald-600' },
+    { name: 'pickupCoin', label: 'Pickup (1)', color: 'bg-yellow-500' },
+    { name: 'laserShoot', label: 'Laser (2)', color: 'bg-red-500' },
+    { name: 'explosion', label: 'Explosion (3)', color: 'bg-orange-500' },
+    { name: 'powerUp', label: 'PowerUp (4)', color: 'bg-green-500' },
+    { name: 'hitHurt', label: 'Hit (5)', color: 'bg-purple-500' },
+    { name: 'jump', label: 'Jump (6)', color: 'bg-blue-500' },
+    { name: 'ambient', label: 'Ambient (7)', color: 'bg-teal-500' },
+    { name: 'random', label: 'Random (8)', color: 'bg-gray-500' },
+    { name: 'blip', label: 'Blip (9)', color: 'bg-cyan-400' },
+    { name: 'zap', label: 'Zap (Q)', color: 'bg-lime-400' },
+    { name: 'woosh', label: 'Woosh (W)', color: 'bg-indigo-500' },
+    { name: 'drone', label: 'Drone (E)', color: 'bg-pink-500' },
+    { name: 'click', label: 'Click (R)', color: 'bg-amber-500' },
+    { name: 'glitch', label: 'Glitch (T)', color: 'bg-fuchsia-500' },
+    { name: 'portal', label: 'Portal (Y)', color: 'bg-emerald-500' },
     { name: 'warning', label: 'Warning (U)', color: 'bg-red-700' }
   ];
 
@@ -3044,14 +3044,24 @@ export default function CompleteCrispFXR() {
           color: #9ca3af !important;
         }
         
-        .bg-yellow-600 { background-color: #d97706 !important; }
-        .bg-red-600 { background-color: #dc2626 !important; }
-        .bg-orange-600 { background-color: #ea580c !important; }
-        .bg-green-600 { background-color: #16a34a !important; }
-        .bg-purple-600 { background-color: #9333ea !important; }
-        .bg-blue-600 { background-color: #2563eb !important; }
-        .bg-teal-600 { background-color: #0d9488 !important; }
-        .bg-gray-600 { background-color: #4b5563 !important; }
+        /* Ensure preset button colors work */
+        .bg-yellow-500 { background-color: #eab308 !important; }
+        .bg-red-500 { background-color: #ef4444 !important; }
+        .bg-orange-500 { background-color: #f97316 !important; }
+        .bg-green-500 { background-color: #22c55e !important; }
+        .bg-purple-500 { background-color: #a855f7 !important; }
+        .bg-blue-500 { background-color: #3b82f6 !important; }
+        .bg-teal-500 { background-color: #14b8a6 !important; }
+        .bg-gray-500 { background-color: #6b7280 !important; }
+        .bg-cyan-400 { background-color: #22d3ee !important; }
+        .bg-lime-400 { background-color: #a3e635 !important; }
+        .bg-indigo-500 { background-color: #6366f1 !important; }
+        .bg-pink-500 { background-color: #ec4899 !important; }
+        .bg-amber-500 { background-color: #f59e0b !important; }
+        .bg-fuchsia-500 { background-color: #d946ef !important; }
+        .bg-emerald-500 { background-color: #10b981 !important; }
+        .bg-red-700 { background-color: #b91c1c !important; }
+
       `}</style>
     </div>
   );
