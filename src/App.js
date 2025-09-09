@@ -937,11 +937,27 @@ const WaveformDisplay = ({ audioBuffer, isPlaying, title = "Waveform" }) => {
 
 const ParameterInfo = ({ title, description, technical }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  
+  const [position, setPosition] = useState('left');
+  const ref = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      // If the tooltip's parent is past the horizontal midpoint of the window,
+      // anchor the tooltip to the right edge instead of the left.
+      if (rect.left > window.innerWidth / 2) {
+        setPosition('right');
+      } else {
+        setPosition('left');
+      }
+    }
+    setShowTooltip(true);
+  };
+
   return (
-    <div className="relative inline-block">
+    <div ref={ref} className="relative inline-block">
       <button
-        onMouseEnter={() => setShowTooltip(true)}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setShowTooltip(false)}
         className="ml-1 w-4 h-4 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center hover:bg-blue-400"
       >
@@ -949,9 +965,14 @@ const ParameterInfo = ({ title, description, technical }) => {
       </button>
       
       {showTooltip && (
-        <div className="absolute z-50 w-80 p-3 bg-gray-800 border border-gray-600 rounded-lg shadow-lg bottom-6 left-0">
+        <div 
+          className={`absolute z-50 w-80 p-3 bg-gray-800 border border-gray-600 rounded-lg shadow-lg bottom-6 ${
+            position === 'left' ? 'left-0' : 'right-0'
+          }`}
+        >
           <h4 className="font-semibold text-white mb-2">{title}</h4>
-          <p className="text-sm text-gray-300 mb-2">{description}</p>
+          {/* Use pre-wrap to respect newlines in the description string */}
+          <p className="text-sm text-gray-300 mb-2 whitespace-pre-wrap">{description}</p>
           <p className="text-xs text-gray-400 italic">{technical}</p>
         </div>
       )}
@@ -1270,45 +1291,181 @@ const AmplitudeEnvelope = ({ audioBuffer, title = "Volume Envelope" }) => {
 
 // Parameter information database
 const parameterInfo = {
+  // Visualizations
+  waveform: {
+    title: "Waveform Display",
+    description: "Shows the shape of the sound wave. It plots the amplitude (volume) of the sound over its short duration.",
+    technical: "A time-domain representation of the audio buffer. The Y-axis is amplitude (-1 to 1) and the X-axis is time."
+  },
+  spectrum: {
+    title: "Frequency Spectrum",
+    description: "Visualizes which frequencies (low to high) are present in the sound. Taller bars mean that frequency is more prominent.",
+    technical: "A frequency-domain representation derived from a Discrete Fourier Transform (DFT). The X-axis is frequency (logarithmic scale) and the Y-axis is magnitude."
+  },
+  amplitudeMeter: {
+    title: "Amplitude Meter",
+    description: "Displays the sound's volume levels. RMS is the average volume, while PEAK shows the loudest single point.",
+    technical: "Calculates Root Mean Square (RMS) and Peak amplitude, converting them to decibels (dBFS). A peak near 0dB indicates potential clipping."
+  },
+  amplitudeEnvelope: {
+    title: "Volume Envelope",
+    description: "Shows the overall shape of the sound's volume from start to finish. This is shaped by the Attack, Sustain, and Decay parameters.",
+    technical: "Calculates the RMS amplitude over small time windows to plot the sound's overall amplitude contour over its full duration."
+  },
+
+  // Waveform and Noise Types
+  waveformType: {
+    title: "Waveform Type",
+    description: "The fundamental building block of the sound. Each shape has a unique harmonic content and character.\n\n• Square: Bright, buzzy, hollow. Classic retro game sound.\n• Sawtooth: Rich, sharp, full. Great for leads and basses.\n• Sine: Pure, smooth, clean. The most basic tone with no overtones.\n• Noise: Hissy and random. Used for percussion and effects like wind or explosions.",
+    technical: "Sets the oscillator's fundamental shape. Square waves contain odd harmonics, Sawtooth waves contain all harmonics, and Sine waves contain only the fundamental frequency."
+  },
+  noiseType: {
+    title: "Noise Type",
+    description: "Different 'colors' of noise, each with a different balance of frequencies.\n\n• White: Hissy static with equal energy across all frequencies.\n• Pink: Deeper, like a waterfall, with less high-frequency content.\n• Brown: A low rumble, like distant thunder, emphasizing bass frequencies.",
+    technical: "Describes the power spectral density. White noise is flat (equal power per Hz). Pink noise power drops 3dB per octave. Brown(ian) noise power drops 6dB per octave."
+  },
+
+  // Basic Parameters
   p_base_freq: {
     title: "Base Frequency",
-    description: "Controls the fundamental pitch of the sound. Higher values create higher pitched sounds.",
-    technical: "Frequency in normalized units (0-1), multiplied by 440Hz. 0.5 ≈ 220Hz, 1.0 ≈ 440Hz (A4)"
+    description: "Controls the fundamental pitch of the sound. Higher values create higher-pitched sounds.",
+    technical: "Normalized frequency value, where 1.0 is approximately 440Hz (A4). The range is clamped between 20Hz and 20kHz during synthesis."
   },
   p_freq_ramp: {
-    title: "Frequency Ramp", 
-    description: "Makes the pitch slide up (positive) or down (negative) over time.",
-    technical: "Linear frequency modulation rate. Creates sweep effects, dive bombs, or rising tones."
+    title: "Frequency Ramp (Slide)",
+    description: "Makes the pitch slide up (positive) or down (negative) over the sound's duration.",
+    technical: "A linear modulation added to the base frequency over time. Creates sweeps, risers, and dive-bomb effects."
   },
+  p_freq_limit: {
+    title: "Frequency Floor",
+    description: "Sets a minimum pitch for downward frequency slides, preventing them from becoming inaudibly low.",
+    technical: "A lower bound for the frequency. Useful for sounds like lasers or impacts that slide down but shouldn't disappear."
+  },
+  p_freq_dramp: {
+    title: "Delta Slide",
+    description: "Accelerates or decelerates the frequency slide over time, creating curved pitch changes.",
+    technical: "Modulates the `p_freq_ramp` itself, creating a second-order change in frequency (acceleration)."
+  },
+  p_repeat_speed: {
+    title: "Retrigger Rate",
+    description: "Rapidly re-triggers the sound's envelope, creating a stuttering or buzzing effect.",
+    technical: "Applies a sawtooth-like amplitude modulation to the envelope, simulating rapid re-triggering at a rate proportional to this value."
+  },
+
+  // Envelope Parameters
   p_env_attack: {
     title: "Attack Time",
-    description: "How quickly the sound reaches full volume when triggered.",
-    technical: "Attack phase duration in seconds. 0 = instant, higher values = slower fade-in."
+    description: "How quickly the sound fades in from silence to its maximum volume.",
+    technical: "The duration of the Attack phase of the ADSR envelope, in seconds. A value of 0 is instantaneous."
+  },
+  p_env_sustain: {
+    title: "Sustain Time",
+    description: "How long the sound holds its volume after the initial attack.",
+    technical: "The duration of the Sustain phase of the ADSR envelope, in seconds."
   },
   p_env_decay: {
-    title: "Decay Time", 
-    description: "How quickly the sound fades out after the sustain phase.",
-    technical: "Exponential decay time constant. Controls the 'tail' length of the sound."
+    title: "Decay Time",
+    description: "How quickly the sound fades out to silence after the sustain period ends.",
+    technical: "The duration of the Decay phase of the ADSR envelope, in seconds."
   },
+  p_env_punch: {
+    title: "Sustain Punch",
+    description: "Adds an initial volume boost at the beginning of the sustain phase, creating a more percussive or 'punchy' sound.",
+    technical: "An amplitude boost applied at the start of the sustain phase which then decays, creating a secondary attack-decay shape within the sustain."
+  },
+  p_vib_speed: {
+    title: "Vibrato Speed",
+    description: "Controls how fast the pitch wavers up and down (vibrato).",
+    technical: "The frequency of the Low-Frequency Oscillator (LFO) that modulates the pitch."
+  },
+  p_vib_strength: {
+    title: "Vibrato Depth",
+    description: "Controls how much the pitch wavers up and down (vibrato depth).",
+    technical: "The amplitude of the LFO that modulates the pitch, determining the intensity of the vibrato effect."
+  },
+
+  // Effects Parameters
   distortion: {
     title: "Distortion",
-    description: "Adds harmonic saturation and grit to the sound.",
-    technical: "Hyperbolic tangent waveshaping with variable drive amount."
+    description: "Adds warmth, grit, and aggressive harmonics by clipping the waveform.",
+    technical: "Applies a hyperbolic tangent `tanh(x)` waveshaping algorithm to the signal, adding odd harmonics."
+  },
+  bit_crush: {
+    title: "Bit Crush",
+    description: "Reduces the sound's digital resolution, creating a crunchy, lo-fi, retro video game sound.",
+    technical: "Quantizes the signal's amplitude to a lower bit depth, introducing quantization error noise."
   },
   p_lpf_freq: {
     title: "Low-Pass Filter",
-    description: "Removes high frequencies, making the sound darker/muffled.",
-    technical: "Simple RC low-pass filter. 1.0 = no filtering, 0.0 = maximum filtering."
+    description: "Cuts high frequencies, making the sound darker, more muffled, or appear farther away.",
+    technical: "The cutoff frequency of a simple one-pole low-pass filter. Value of 1.0 means the filter is fully open (no effect)."
+  },
+  p_lpf_resonance: {
+    title: "LPF Resonance",
+    description: "Creates a resonant 'peak' or 'whistle' at the Low-Pass Filter's cutoff frequency, accentuating the filter's effect.",
+    technical: "Boosts frequencies near the cutoff point. High values can lead to self-oscillation, creating a sine-like tone."
+  },
+  p_hpf_freq: {
+    title: "High-Pass Filter",
+    description: "Cuts low frequencies, making the sound thinner, tinnier, or removing unwanted bass rumble.",
+    technical: "The cutoff frequency of a simple one-pole high-pass filter. Value of 0.0 means the filter has no effect."
+  },
+  chorus_rate: {
+    title: "Chorus Rate",
+    description: "The speed of the warbling, shimmering chorus effect.",
+    technical: "The modulation rate of the chorus effect's delay line, creating a sense of multiple voices."
+  },
+  delay_time: {
+    title: "Delay Time",
+    description: "The time between the original sound and its first echo.",
+    technical: "The length of the delay buffer, determining the time until the delayed signal is played back."
+  },
+  flanger_rate: {
+    title: "Flanger Rate",
+    description: "The speed of the 'whooshing' jet-engine flanger effect.",
+    technical: "The modulation rate of the flanger's short, sweeping delay line."
+  },
+  flanger_depth: {
+    title: "Flanger Depth",
+    description: "The intensity or width of the flanger's sweeping effect.",
+    technical: "The modulation depth of the flanger's delay line."
+  },
+  flanger_delay: {
+    title: "Flanger Delay",
+    description: "The base delay time for the flanger, affecting its tonal character.",
+    technical: "Sets the center point around which the flanger's delay time is modulated."
+  },
+
+  // Advanced Parameters
+  fm_freq: {
+    title: "FM Frequency",
+    description: "The pitch of the modulating oscillator in Frequency Modulation (FM) synthesis. Creates complex, metallic, or bell-like tones.",
+    technical: "Sets the frequency of a secondary (modulator) oscillator whose output modifies the primary (carrier) oscillator's frequency."
+  },
+  fm_depth: {
+    title: "FM Depth",
+    description: "The intensity of the FM synthesis effect.",
+    technical: "The amplitude of the modulator oscillator, determining how strongly it affects the carrier's frequency."
+  },
+  ring_mod_freq: {
+    title: "Ring Mod Frequency",
+    description: "The frequency of the carrier wave for the ring modulator. Creates dissonant, robotic, and metallic textures.",
+    technical: "The frequency of the sine wave that the input signal is multiplied by, producing sum and difference frequencies."
+  },
+  ring_mod_depth: {
+    title: "Ring Mod Depth",
+    description: "The mix amount of the ring modulation effect.",
+    technical: "Controls the wet/dry mix between the original signal and the ring-modulated signal."
+  },
+  delay_feedback: {
+    title: "Delay Feedback",
+    description: "Controls how many echoes are produced by the delay effect. High values can lead to runaway, loud sounds.",
+    technical: "The amount of the delayed signal that is fed back into the delay line's input."
   },
   sound_vol: {
     title: "Master Volume",
-    description: "Overall amplitude/loudness of the generated sound.",
-    technical: "Linear amplitude multiplier. 0.5 = -6dB, 1.0 = 0dB (full scale)"
-  },
-  p_env_punch: {
-    title: "Sustain Punch", 
-    description: "Adds extra volume boost during the sustain phase.",
-    technical: "Amplitude envelope boost factor. Creates percussive 'punch' effect."
+    description: "The final volume of this specific sound patch. This is applied before the global master volume.",
+    technical: "A final linear amplitude multiplier for the generated buffer. Value of 1.0 represents 0dBFS (no change)."
   }
 };
 
@@ -1704,11 +1861,11 @@ export default function CompleteCrispFXR() {
     });
   }, [params, paramsB, activeSlot]);
 
-  const copyParamsAsBase58 = useCallback(() => {
+  const copyParamsAsBase64 = useCallback(() => {
     const currentParams = activeSlot === 'A' ? params : paramsB;
     const encoded = encodeParams(currentParams);
     navigator.clipboard.writeText(encoded).then(() => {
-      console.log('Parameters copied as base58');
+      console.log('Parameters copied as base64');
     }).catch(err => {
       console.error('Failed to copy to clipboard:', err);
     });
@@ -2231,7 +2388,10 @@ export default function CompleteCrispFXR() {
 
         {/* Visualization Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
+          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 relative group">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <ParameterInfo {...parameterInfo.waveform} />
+            </div>
             <WaveformDisplay 
               audioBuffer={audioBuffer} 
               isPlaying={isPlaying && activeSlot === 'A'} 
@@ -2239,7 +2399,10 @@ export default function CompleteCrispFXR() {
             />
           </div>
 
-          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
+          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 relative group">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <ParameterInfo {...parameterInfo.waveform} />
+            </div>
             <WaveformDisplay 
               audioBuffer={audioBufferB} 
               isPlaying={isPlaying && activeSlot === 'B'} 
@@ -2247,17 +2410,26 @@ export default function CompleteCrispFXR() {
             />
           </div>
 
-          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
+          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 relative group">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <ParameterInfo {...parameterInfo.spectrum} />
+            </div>
             <SpectrumAnalyzer audioBuffer={currentBuffer} />
           </div>
 
-          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6">
+          <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 relative group">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <ParameterInfo {...parameterInfo.amplitudeMeter} />
+            </div>
             <AmplitudeMeter audioBuffer={currentBuffer} />
           </div>
         </div>
 
         {/* Additional envelope display */}
-        <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 mb-8">
+        <div className="bg-gray-900/50 backdrop-blur rounded-xl border border-gray-700 p-6 mb-8 relative group">
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <ParameterInfo {...parameterInfo.amplitudeEnvelope} />
+          </div>
           <AmplitudeEnvelope audioBuffer={currentBuffer} />
         </div>
 
@@ -2378,11 +2550,11 @@ export default function CompleteCrispFXR() {
                 </button>
                 
                 <button
-                  onClick={copyParamsAsBase58}
+                  onClick={copyParamsAsBase64}
                   className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 font-semibold"
                 >
                   <Copy className="w-4 h-4" />
-                  Copy Base58
+                  Copy Base64
                 </button>
                 
                 {currentShareLink && (
@@ -2440,340 +2612,362 @@ export default function CompleteCrispFXR() {
           {/* Parameter Panels */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeTab === 'basic' && (
-              <>
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h4 className="font-semibold mb-3 text-blue-300">Waveform Type</h4>
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    {waveTypes.map((wave, idx) => (
-                      <label key={wave} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          checked={currentParams.wave_type === idx}
-                          onChange={() => updateParam('wave_type', idx)}
-                          className="text-blue-600"
-                        />
-                        <span className="text-sm text-white">{wave}</span>
-                      </label>
-                    ))}
+                <>
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="font-semibold mb-3 text-blue-300 flex items-center">
+                      Waveform Type
+                      <ParameterInfo {...parameterInfo.waveformType} />
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      {waveTypes.map((wave, idx) => (
+                        <label key={wave} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            checked={currentParams.wave_type === idx}
+                            onChange={() => updateParam('wave_type', idx)}
+                            className="text-blue-600"
+                          />
+                          <span className="text-sm text-white">{wave}</span>
+                        </label>
+                      ))}
+                    </div>
+                    
+                    {currentParams.wave_type === NOISE && (
+                      <>
+                        <h4 className="font-semibold mb-3 text-purple-400 flex items-center">
+                          Noise Type
+                           <ParameterInfo {...parameterInfo.noiseType} />
+                        </h4>
+                        <div className="grid grid-cols-3 gap-1">
+                          {noiseTypes.map((noise, idx) => (
+                            <label key={noise} className="flex items-center gap-1 cursor-pointer text-xs">
+                              <input
+                                type="radio"
+                                checked={currentParams.noise_type === idx}
+                                onChange={() => updateParam('noise_type', idx)}
+                                className="text-purple-600"
+                              />
+                              <span className="text-white">{noise}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
-                  
-                  {currentParams.wave_type === NOISE && (
-                    <>
-                      <h4 className="font-semibold mb-3 text-purple-400">Noise Type</h4>
-                      <div className="grid grid-cols-3 gap-1">
-                        {noiseTypes.map((noise, idx) => (
-                          <label key={noise} className="flex items-center gap-1 cursor-pointer text-xs">
-                            <input
-                              type="radio"
-                              checked={currentParams.noise_type === idx}
-                              onChange={() => updateParam('noise_type', idx)}
-                              className="text-purple-600"
-                            />
-                            <span className="text-white">{noise}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
 
                 {/* Use conditional rendering for slider vs numeric */}
                 {showNumericInputs ? (
-                  <>
-                    <NumericInput
-                      label="Base Frequency"
-                      value={currentParams.p_base_freq}
-                      onChange={(v) => updateParam('p_base_freq', v)}
-                      min={0}
-                      max={2}
-                      locked={lockedParams.has('p_base_freq')}
-                      onToggleLock={() => toggleParamLock('p_base_freq')}
-                    />
-                    <NumericInput
-                      label="Frequency Ramp"
-                      value={currentParams.p_freq_ramp}
-                      onChange={(v) => updateParam('p_freq_ramp', v)}
-                      locked={lockedParams.has('p_freq_ramp')}
-                      onToggleLock={() => toggleParamLock('p_freq_ramp')}
-                    />
-                    {/* Add NumericInput for new parameters */}
-                    <NumericInput
-                      label="Frequency Limit"
-                      value={currentParams.p_freq_limit}
-                      onChange={(v) => updateParam('p_freq_limit', v)}
-                      min={0}
-                      max={1}
-                      locked={lockedParams.has('p_freq_limit')}
-                      onToggleLock={() => toggleParamLock('p_freq_limit')}
-                    />
-                    <NumericInput
-                      label="Delta Slide"
-                      value={currentParams.p_freq_dramp}
-                      onChange={(v) => updateParam('p_freq_dramp', v)}
-                      locked={lockedParams.has('p_freq_dramp')}
-                      onToggleLock={() => toggleParamLock('p_freq_dramp')}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <ParamSlider
-                      label="Base Frequency"
-                      value={currentParams.p_base_freq}
-                      onChange={(v) => updateParam('p_base_freq', v)}
-                      min={0}
-                      max={2}
-                      locked={lockedParams.has('p_base_freq')}
-                      onToggleLock={() => toggleParamLock('p_base_freq')}
-                      info={parameterInfo.p_base_freq}
-                    />
-                    <ParamSlider
-                      label="Frequency Ramp"
-                      value={currentParams.p_freq_ramp}
-                      onChange={(v) => updateParam('p_freq_ramp', v)}
-                      min={-1}
-                      max={1}
-                      locked={lockedParams.has('p_freq_ramp')}
-                      onToggleLock={() => toggleParamLock('p_freq_ramp')}
-                    />
-                    {/* Add ParamSlider for new parameters */}
-                    <ParamSlider
-                      label="Frequency Limit"
-                      value={currentParams.p_freq_limit}
-                      onChange={(v) => updateParam('p_freq_limit', v)}
-                      min={0}
-                      max={1}
-                      locked={lockedParams.has('p_freq_limit')}
-                      onToggleLock={() => toggleParamLock('p_freq_limit')}
-                    />
-                    <ParamSlider
-                      label="Delta Slide"
-                      value={currentParams.p_freq_dramp}
-                      onChange={(v) => updateParam('p_freq_dramp', v)}
-                      min={-1}
-                      max={1}
-                      locked={lockedParams.has('p_freq_dramp')}
-                      onToggleLock={() => toggleParamLock('p_freq_dramp')}
-                    />
-                  </>
-                )}
-                
-                {/* Add Retrigger section */}
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h4 className="font-semibold mb-3 text-orange-300">Retrigger</h4>
+                    <>
+                      <NumericInput
+                        label="Base Frequency"
+                        value={currentParams.p_base_freq}
+                        onChange={(v) => updateParam('p_base_freq', v)}
+                        min={0} max={2}
+                        locked={lockedParams.has('p_base_freq')}
+                        onToggleLock={() => toggleParamLock('p_base_freq')}
+                        info={parameterInfo.p_base_freq}
+                      />
+                      <NumericInput
+                        label="Frequency Ramp"
+                        value={currentParams.p_freq_ramp}
+                        onChange={(v) => updateParam('p_freq_ramp', v)}
+                        locked={lockedParams.has('p_freq_ramp')}
+                        onToggleLock={() => toggleParamLock('p_freq_ramp')}
+                        info={parameterInfo.p_freq_ramp}
+                      />
+                      <NumericInput
+                        label="Frequency Floor"
+                        value={currentParams.p_freq_limit}
+                        onChange={(v) => updateParam('p_freq_limit', v)}
+                        min={0} max={1}
+                        locked={lockedParams.has('p_freq_limit')}
+                        onToggleLock={() => toggleParamLock('p_freq_limit')}
+                        info={parameterInfo.p_freq_limit}
+                      />
+                      <NumericInput
+                        label="Delta Slide"
+                        value={currentParams.p_freq_dramp}
+                        onChange={(v) => updateParam('p_freq_dramp', v)}
+                        locked={lockedParams.has('p_freq_dramp')}
+                        onToggleLock={() => toggleParamLock('p_freq_dramp')}
+                        info={parameterInfo.p_freq_dramp}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <ParamSlider
+                        label="Base Frequency"
+                        value={currentParams.p_base_freq}
+                        onChange={(v) => updateParam('p_base_freq', v)}
+                        min={0} max={2}
+                        locked={lockedParams.has('p_base_freq')}
+                        onToggleLock={() => toggleParamLock('p_base_freq')}
+                        info={parameterInfo.p_base_freq}
+                      />
+                      <ParamSlider
+                        label="Frequency Ramp"
+                        value={currentParams.p_freq_ramp}
+                        onChange={(v) => updateParam('p_freq_ramp', v)}
+                        min={-1} max={1}
+                        locked={lockedParams.has('p_freq_ramp')}
+                        onToggleLock={() => toggleParamLock('p_freq_ramp')}
+                        info={parameterInfo.p_freq_ramp}
+                      />
+                      <ParamSlider
+                        label="Frequency Floor"
+                        value={currentParams.p_freq_limit}
+                        onChange={(v) => updateParam('p_freq_limit', v)}
+                        min={0} max={1}
+                        locked={lockedParams.has('p_freq_limit')}
+                        onToggleLock={() => toggleParamLock('p_freq_limit')}
+                        info={parameterInfo.p_freq_limit}
+                      />
+                      <ParamSlider
+                        label="Delta Slide"
+                        value={currentParams.p_freq_dramp}
+                        onChange={(v) => updateParam('p_freq_dramp', v)}
+                        min={-1} max={1}
+                        locked={lockedParams.has('p_freq_dramp')}
+                        onToggleLock={() => toggleParamLock('p_freq_dramp')}
+                        info={parameterInfo.p_freq_dramp}
+                      />
+                    </>
+                  )}
+                  
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="font-semibold mb-3 text-orange-300">Retrigger</h4>
+                    {showNumericInputs ? (
+                      <NumericInput
+                        label="Rate"
+                        value={currentParams.p_repeat_speed}
+                        onChange={(v) => updateParam('p_repeat_speed', v)}
+                        min={0} max={1}
+                        locked={lockedParams.has('p_repeat_speed')}
+                        onToggleLock={() => toggleParamLock('p_repeat_speed')}
+                        info={parameterInfo.p_repeat_speed}
+                      />
+                    ) : (
+                      <ParamSlider
+                        label="Rate"
+                        value={currentParams.p_repeat_speed}
+                        onChange={(v) => updateParam('p_repeat_speed', v)}
+                        min={0} max={1}
+                        locked={lockedParams.has('p_repeat_speed')}
+                        onToggleLock={() => toggleParamLock('p_repeat_speed')}
+                        info={parameterInfo.p_repeat_speed}
+                      />
+                    )}
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'envelope' && (
+                <>
+                  <ParamSlider
+                    label="Attack Time"
+                    value={currentParams.p_env_attack}
+                    onChange={(v) => updateParam('p_env_attack', v)}
+                    locked={lockedParams.has('p_env_attack')}
+                    onToggleLock={() => toggleParamLock('p_env_attack')}
+                    info={parameterInfo.p_env_attack}
+                  />
+                  <ParamSlider
+                    label="Sustain Time"
+                    value={currentParams.p_env_sustain}
+                    onChange={(v) => updateParam('p_env_sustain', v)}
+                    locked={lockedParams.has('p_env_sustain')}
+                    onToggleLock={() => toggleParamLock('p_env_sustain')}
+                    info={parameterInfo.p_env_sustain}
+                  />
+                  <ParamSlider
+                    label="Decay Time"
+                    value={currentParams.p_env_decay}
+                    onChange={(v) => updateParam('p_env_decay', v)}
+                    locked={lockedParams.has('p_env_decay')}
+                    onToggleLock={() => toggleParamLock('p_env_decay')}
+                    info={parameterInfo.p_env_decay}
+                  />
+                  <ParamSlider
+                    label="Sustain Punch"
+                    value={currentParams.p_env_punch}
+                    onChange={(v) => updateParam('p_env_punch', v)}
+                    locked={lockedParams.has('p_env_punch')}
+                    onToggleLock={() => toggleParamLock('p_env_punch')}
+                    info={parameterInfo.p_env_punch}
+                  />
+                  <ParamSlider
+                    label="Vibrato Speed"
+                    value={currentParams.p_vib_speed}
+                    onChange={(v) => updateParam('p_vib_speed', v)}
+                    locked={lockedParams.has('p_vib_speed')}
+                    onToggleLock={() => toggleParamLock('p_vib_speed')}
+                    suggestion={getParameterSuggestion('p_vib_speed', currentParams.wave_type)}
+                    info={parameterInfo.p_vib_speed}
+                  />
+                  <ParamSlider
+                    label="Vibrato Depth"
+                    value={currentParams.p_vib_strength}
+                    onChange={(v) => updateParam('p_vib_strength', v)}
+                    locked={lockedParams.has('p_vib_strength')}
+                    onToggleLock={() => toggleParamLock('p_vib_strength')}
+                    info={parameterInfo.p_vib_strength}
+                  />
+                </>
+              )}
+
+              {activeTab === 'effects' && (
+                <>
+                  <ParamSlider
+                    label="Distortion"
+                    value={currentParams.distortion}
+                    onChange={(v) => updateParam('distortion', v)}
+                    locked={lockedParams.has('distortion')}
+                    onToggleLock={() => toggleParamLock('distortion')}
+                    info={parameterInfo.distortion}
+                  />
+                  <ParamSlider
+                    label="Bit Crush"
+                    value={currentParams.bit_crush}
+                    onChange={(v) => updateParam('bit_crush', v)}
+                    locked={lockedParams.has('bit_crush')}
+                    onToggleLock={() => toggleParamLock('bit_crush')}
+                    info={parameterInfo.bit_crush}
+                  />
+                  <ParamSlider
+                    label="Low-pass Filter"
+                    value={currentParams.p_lpf_freq}
+                    onChange={(v) => updateParam('p_lpf_freq', v)}
+                    locked={lockedParams.has('p_lpf_freq')}
+                    onToggleLock={() => toggleParamLock('p_lpf_freq')}
+                    suggestion={getParameterSuggestion('p_lpf_freq', currentParams.wave_type)}
+                    info={parameterInfo.p_lpf_freq}
+                  />
+                  <ParamSlider
+                    label="High-pass Filter"
+                    value={currentParams.p_hpf_freq}
+                    onChange={(v) => updateParam('p_hpf_freq', v)}
+                    locked={lockedParams.has('p_hpf_freq')}
+                    onToggleLock={() => toggleParamLock('p_hpf_freq')}
+                    suggestion={getParameterSuggestion('p_hpf_freq', currentParams.wave_type)}
+                    info={parameterInfo.p_hpf_freq}
+                  />
+                  <ParamSlider
+                    label="Chorus Rate"
+                    value={currentParams.chorus_rate}
+                    onChange={(v) => updateParam('chorus_rate', v)}
+                    locked={lockedParams.has('chorus_rate')}
+                    onToggleLock={() => toggleParamLock('chorus_rate')}
+                    info={parameterInfo.chorus_rate}
+                  />
+                  <ParamSlider
+                    label="Delay Time"
+                    value={currentParams.delay_time}
+                    onChange={(v) => updateParam('delay_time', v)}
+                    locked={lockedParams.has('delay_time')}
+                    onToggleLock={() => toggleParamLock('delay_time')}
+                    info={parameterInfo.delay_time}
+                  />
+                  <ParamSlider
+                    label="Flanger Rate"
+                    value={currentParams.flanger_rate}
+                    onChange={(v) => updateParam('flanger_rate', v)}
+                    locked={lockedParams.has('flanger_rate')}
+                    onToggleLock={() => toggleParamLock('flanger_rate')}
+                    info={parameterInfo.flanger_rate}
+                  />
+                  <ParamSlider
+                    label="Flanger Depth"
+                    value={currentParams.flanger_depth}
+                    onChange={(v) => updateParam('flanger_depth', v)}
+                    locked={lockedParams.has('flanger_depth')}
+                    onToggleLock={() => toggleParamLock('flanger_depth')}
+                    info={parameterInfo.flanger_depth}
+                  />
+                  <ParamSlider
+                    label="Flanger Delay"
+                    value={currentParams.flanger_delay}
+                    onChange={(v) => updateParam('flanger_delay', v)}
+                    locked={lockedParams.has('flanger_delay')}
+                    onToggleLock={() => toggleParamLock('flanger_delay')}
+                    info={parameterInfo.flanger_delay}
+                  />
                   {showNumericInputs ? (
                     <NumericInput
-                      label="Rate"
-                      value={currentParams.p_repeat_speed}
-                      onChange={(v) => updateParam('p_repeat_speed', v)}
-                      min={0}
-                      max={1}
-                      locked={lockedParams.has('p_repeat_speed')}
-                      onToggleLock={() => toggleParamLock('p_repeat_speed')}
+                      label="LPF Resonance"
+                      value={currentParams.p_lpf_resonance}
+                      onChange={(v) => updateParam('p_lpf_resonance', v)}
+                      min={0} max={1}
+                      locked={lockedParams.has('p_lpf_resonance')}
+                      onToggleLock={() => toggleParamLock('p_lpf_resonance')}
+                      info={parameterInfo.p_lpf_resonance}
                     />
                   ) : (
                     <ParamSlider
-                      label="Rate"
-                      value={currentParams.p_repeat_speed}
-                      onChange={(v) => updateParam('p_repeat_speed', v)}
-                      min={0}
-                      max={1}
-                      locked={lockedParams.has('p_repeat_speed')}
-                      onToggleLock={() => toggleParamLock('p_repeat_speed')}
+                      label="LPF Resonance"
+                      value={currentParams.p_lpf_resonance}
+                      onChange={(v) => updateParam('p_lpf_resonance', v)}
+                      min={0} max={1}
+                      locked={lockedParams.has('p_lpf_resonance')}
+                      onToggleLock={() => toggleParamLock('p_lpf_resonance')}
+                      info={parameterInfo.p_lpf_resonance}
                     />
                   )}
-                </div>
-              </>
-            )}
+                </>
+              )}
 
-            {activeTab === 'envelope' && (
-              <>
-                <ParamSlider
-                  label="Attack Time"
-                  value={currentParams.p_env_attack}
-                  onChange={(v) => updateParam('p_env_attack', v)}
-                  locked={lockedParams.has('p_env_attack')}
-                  onToggleLock={() => toggleParamLock('p_env_attack')}
-                />
-                <ParamSlider
-                  label="Sustain Time"
-                  value={currentParams.p_env_sustain}
-                  onChange={(v) => updateParam('p_env_sustain', v)}
-                  locked={lockedParams.has('p_env_sustain')}
-                  onToggleLock={() => toggleParamLock('p_env_sustain')}
-                />
-                <ParamSlider
-                  label="Decay Time"
-                  value={currentParams.p_env_decay}
-                  onChange={(v) => updateParam('p_env_decay', v)}
-                  locked={lockedParams.has('p_env_decay')}
-                  onToggleLock={() => toggleParamLock('p_env_decay')}
-                />
-                <ParamSlider
-                  label="Sustain Punch"
-                  value={currentParams.p_env_punch}
-                  onChange={(v) => updateParam('p_env_punch', v)}
-                  locked={lockedParams.has('p_env_punch')}
-                  onToggleLock={() => toggleParamLock('p_env_punch')}
-                />
-                <ParamSlider
-                  label="Vibrato Speed"
-                  value={currentParams.p_vib_speed}
-                  onChange={(v) => updateParam('p_vib_speed', v)}
-                  locked={lockedParams.has('p_vib_speed')}
-                  onToggleLock={() => toggleParamLock('p_vib_speed')}
-                  suggestion={getParameterSuggestion('p_vib_speed', currentParams.wave_type)}
-                />
-                <ParamSlider
-                  label="Vibrato Strength"
-                  value={currentParams.p_vib_strength}
-                  onChange={(v) => updateParam('p_vib_strength', v)}
-                  locked={lockedParams.has('p_vib_strength')}
-                  onToggleLock={() => toggleParamLock('p_vib_strength')}
-                />
-              </>
-            )}
-
-            {activeTab === 'effects' && (
-              <>
-                <ParamSlider
-                  label="Distortion"
-                  value={currentParams.distortion}
-                  onChange={(v) => updateParam('distortion', v)}
-                  locked={lockedParams.has('distortion')}
-                  onToggleLock={() => toggleParamLock('distortion')}
-                />
-                <ParamSlider
-                  label="Bit Crush"
-                  value={currentParams.bit_crush}
-                  onChange={(v) => updateParam('bit_crush', v)}
-                  locked={lockedParams.has('bit_crush')}
-                  onToggleLock={() => toggleParamLock('bit_crush')}
-                />
-                <ParamSlider
-                  label="Low-pass Filter"
-                  value={currentParams.p_lpf_freq}
-                  onChange={(v) => updateParam('p_lpf_freq', v)}
-                  locked={lockedParams.has('p_lpf_freq')}
-                  onToggleLock={() => toggleParamLock('p_lpf_freq')}
-                  suggestion={getParameterSuggestion('p_lpf_freq', currentParams.wave_type)}
-                />
-                <ParamSlider
-                  label="High-pass Filter"
-                  value={currentParams.p_hpf_freq}
-                  onChange={(v) => updateParam('p_hpf_freq', v)}
-                  locked={lockedParams.has('p_hpf_freq')}
-                  onToggleLock={() => toggleParamLock('p_hpf_freq')}
-                  suggestion={getParameterSuggestion('p_hpf_freq', currentParams.wave_type)}
-                />
-                <ParamSlider
-                  label="Chorus Rate"
-                  value={currentParams.chorus_rate}
-                  onChange={(v) => updateParam('chorus_rate', v)}
-                  locked={lockedParams.has('chorus_rate')}
-                  onToggleLock={() => toggleParamLock('chorus_rate')}
-                />
-                <ParamSlider
-                  label="Delay Time"
-                  value={currentParams.delay_time}
-                  onChange={(v) => updateParam('delay_time', v)}
-                  locked={lockedParams.has('delay_time')}
-                  onToggleLock={() => toggleParamLock('delay_time')}
-                />
-
-                <ParamSlider
-                  label="Flanger Rate"
-                  value={currentParams.flanger_rate}
-                  onChange={(v) => updateParam('flanger_rate', v)}
-                  locked={lockedParams.has('flanger_rate')}
-                  onToggleLock={() => toggleParamLock('flanger_rate')}
-                />
-                <ParamSlider
-                  label="Flanger Depth"
-                  value={currentParams.flanger_depth}
-                  onChange={(v) => updateParam('flanger_depth', v)}
-                  locked={lockedParams.has('flanger_depth')}
-                  onToggleLock={() => toggleParamLock('flanger_depth')}
-                />
-                <ParamSlider
-                  label="Flanger Delay"
-                  value={currentParams.flanger_delay}
-                  onChange={(v) => updateParam('flanger_delay', v)}
-                  locked={lockedParams.has('flanger_delay')}
-                  onToggleLock={() => toggleParamLock('flanger_delay')}
-                />
-
-                {/* Add LPF Resonance */}
-                {showNumericInputs ? (
-                  <NumericInput
-                    label="LPF Resonance"
-                    value={currentParams.p_lpf_resonance}
-                    onChange={(v) => updateParam('p_lpf_resonance', v)}
-                    min={0}
-                    max={1}
-                    locked={lockedParams.has('p_lpf_resonance')}
-                    onToggleLock={() => toggleParamLock('p_lpf_resonance')}
-                  />
-                ) : (
+              {activeTab === 'advanced' && (
+                <>
                   <ParamSlider
-                    label="LPF Resonance"
-                    value={currentParams.p_lpf_resonance}
-                    onChange={(v) => updateParam('p_lpf_resonance', v)}
-                    min={0}
-                    max={1}
-                    locked={lockedParams.has('p_lpf_resonance')}
-                    onToggleLock={() => toggleParamLock('p_lpf_resonance')}
+                    label="FM Frequency"
+                    value={currentParams.fm_freq}
+                    onChange={(v) => updateParam('fm_freq', v)}
+                    locked={lockedParams.has('fm_freq')}
+                    onToggleLock={() => toggleParamLock('fm_freq')}
+                    suggestion={getParameterSuggestion('fm_freq', currentParams.wave_type)}
+                    info={parameterInfo.fm_freq}
                   />
-                )}
-              </>
-            )}
-
-            {activeTab === 'advanced' && (
-              <>
-                <ParamSlider
-                  label="FM Frequency"
-                  value={currentParams.fm_freq}
-                  onChange={(v) => updateParam('fm_freq', v)}
-                  locked={lockedParams.has('fm_freq')}
-                  onToggleLock={() => toggleParamLock('fm_freq')}
-                  suggestion={getParameterSuggestion('fm_freq', currentParams.wave_type)}
-                />
-                <ParamSlider
-                  label="FM Depth"
-                  value={currentParams.fm_depth}
-                  onChange={(v) => updateParam('fm_depth', v)}
-                  locked={lockedParams.has('fm_depth')}
-                  onToggleLock={() => toggleParamLock('fm_depth')}
-                />
-                <ParamSlider
-                  label="Ring Mod Freq"
-                  value={currentParams.ring_mod_freq}
-                  onChange={(v) => updateParam('ring_mod_freq', v)}
-                  locked={lockedParams.has('ring_mod_freq')}
-                  onToggleLock={() => toggleParamLock('ring_mod_freq')}
-                />
-                <ParamSlider
-                  label="Ring Mod Depth"
-                  value={currentParams.ring_mod_depth}
-                  onChange={(v) => updateParam('ring_mod_depth', v)}
-                  locked={lockedParams.has('ring_mod_depth')}
-                  onToggleLock={() => toggleParamLock('ring_mod_depth')}
-                />
-                <ParamSlider
-                  label="Delay Feedback"
-                  value={currentParams.delay_feedback}
-                  onChange={(v) => updateParam('delay_feedback', v)}
-                  locked={lockedParams.has('delay_feedback')}
-                  onToggleLock={() => toggleParamLock('delay_feedback')}
-                />
-                <ParamSlider
-                  label="Master Volume"
-                  value={currentParams.sound_vol}
-                  onChange={(v) => updateParam('sound_vol', v)}
-                  locked={lockedParams.has('sound_vol')}
-                  onToggleLock={() => toggleParamLock('sound_vol')}
-                />
-              </>
-            )}
+                  <ParamSlider
+                    label="FM Depth"
+                    value={currentParams.fm_depth}
+                    onChange={(v) => updateParam('fm_depth', v)}
+                    locked={lockedParams.has('fm_depth')}
+                    onToggleLock={() => toggleParamLock('fm_depth')}
+                    info={parameterInfo.fm_depth}
+                  />
+                  <ParamSlider
+                    label="Ring Mod Freq"
+                    value={currentParams.ring_mod_freq}
+                    onChange={(v) => updateParam('ring_mod_freq', v)}
+                    locked={lockedParams.has('ring_mod_freq')}
+                    onToggleLock={() => toggleParamLock('ring_mod_freq')}
+                    info={parameterInfo.ring_mod_freq}
+                  />
+                  <ParamSlider
+                    label="Ring Mod Depth"
+                    value={currentParams.ring_mod_depth}
+                    onChange={(v) => updateParam('ring_mod_depth', v)}
+                    locked={lockedParams.has('ring_mod_depth')}
+                    onToggleLock={() => toggleParamLock('ring_mod_depth')}
+                    info={parameterInfo.ring_mod_depth}
+                  />
+                  <ParamSlider
+                    label="Delay Feedback"
+                    value={currentParams.delay_feedback}
+                    onChange={(v) => updateParam('delay_feedback', v)}
+                    locked={lockedParams.has('delay_feedback')}
+                    onToggleLock={() => toggleParamLock('delay_feedback')}
+                    info={parameterInfo.delay_feedback}
+                  />
+                  <ParamSlider
+                    label="Master Volume"
+                    value={currentParams.sound_vol}
+                    onChange={(v) => updateParam('sound_vol', v)}
+                    locked={lockedParams.has('sound_vol')}
+                    onToggleLock={() => toggleParamLock('sound_vol')}
+                    info={parameterInfo.sound_vol}
+                  />
+                </>
+              )}
           </div>
         </div>
       </div>
