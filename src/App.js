@@ -55,10 +55,11 @@ class SynthParams {
     this.flanger_delay = 0.5; // a default value
   }
 
+  // validate all
   validate() {
-    // Ensure all numeric parameters are valid numbers
     for (const key in this) {
       if (typeof this[key] === 'number' && (isNaN(this[key]) || !isFinite(this[key]))) {
+        console.warn(`Invalid parameter ${key}: ${this[key]}, setting to 0`);
         this[key] = 0;
       }
     }
@@ -258,18 +259,29 @@ class SynthParams {
 // Enhanced audio synthesis engine
 class AudioSynthesizer {
   constructor() {
+    console.log('AudioSynthesizer constructor called');
     this.audioContext = null;
     this.masterGain = null;
-    this.initAudio();
+    // this.initAudio();
   }
 
   async initAudio() {
     try {
+      console.log('Initializing audio context...');
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      console.log('Audio context created:', this.audioContext);
       this.masterGain = this.audioContext.createGain();
       this.masterGain.connect(this.audioContext.destination);
+      this.isInitialized = true;
+      console.log('Audio initialization complete');
     } catch (e) {
-      console.warn('Web Audio not supported');
+      console.error('Audio initialization failed:', e);
+    }
+  }
+
+  async ensureInitialized() {
+    if (!this.isInitialized) {
+      await this.initAudio();
     }
   }
 
@@ -315,9 +327,13 @@ class AudioSynthesizer {
     return Math.floor(sample * levels) / levels;
   }
 
-  generateBuffer(params, duration = 1.0) {
-    if (!this.audioContext) {
-      console.warn('No audio context available');
+  async generateBuffer(params, duration = 1.0) {
+    console.log('generateBuffer called with:', { params, duration });
+    
+    await this.ensureInitialized();
+    
+    if (!this.audioContext || !this.isInitialized) {
+      console.warn('Audio context not available or not initialized');
       return null;
     }
 
@@ -329,6 +345,7 @@ class AudioSynthesizer {
       }
       
       // Create safe parameters with fallbacks
+      console.log('Creating safe parameters...');
       const safeParams = {
         wave_type: Math.max(0, Math.min(3, Math.floor(params.wave_type || 0))),
         p_env_attack: Math.max(0, Math.min(3, params.p_env_attack || 0)),
@@ -379,14 +396,18 @@ class AudioSynthesizer {
       const sampleRate = this.audioContext.sampleRate;
       const safeDuration = Math.max(0.1, Math.min(10, duration));
       const length = Math.floor(sampleRate * safeDuration);
+
+      console.log('Buffer details:', { sampleRate, safeDuration, length });
       
       if (length <= 0 || length > sampleRate * 10) {
         console.error('Invalid buffer length:', length);
         return null;
       }
       
+      console.log('Creating audio buffer...');
       const buffer = this.audioContext.createBuffer(1, length, sampleRate);
       const data = buffer.getChannelData(0);
+      console.log('Audio buffer created, starting synthesis...');
 
       let phase = 0, subPhase = 0, fmPhase = 0;
       let frequency = safeParams.p_base_freq * 440;
@@ -394,18 +415,21 @@ class AudioSynthesizer {
       let dutyCycle = Math.max(0.01, Math.min(0.99, 0.5 - safeParams.p_duty * 0.5));
       let arpTime = 0;
       let arpValue = 1;
-      let lastSample = 0;
-
+      
       // Pre-generate noise if needed
       let noise = null;
       if (safeParams.wave_type === NOISE) {
         try {
+          console.log('Generating noise...');
           noise = this.generateNoise(safeParams.noise_type, length);
+          console.log('Noise generated successfully');
         } catch (e) {
           console.warn('Noise generation failed:', e);
           noise = new Float32Array(length).fill(0);
         }
       }
+
+      console.log('Starting sample generation loop...');
 
       // Effect state with safe initialization
       const maxDelaySize = Math.floor(sampleRate * 0.5);
@@ -588,6 +612,11 @@ class AudioSynthesizer {
           // Apply envelope and volume
           const finalSample = sample * envelope * safeParams.sound_vol * 0.3;
           data[i] = Math.max(-1, Math.min(1, isNaN(finalSample) ? 0 : finalSample));
+          
+          // Log progress every 10000 samples to avoid spam
+          if (i % 10000 === 0 && i > 0) {
+            console.log(`Generated ${i}/${length} samples (${Math.round(i/length*100)}%)`);
+          }
 
         } catch (sampleError) {
           console.error(`Error at sample ${i}:`, sampleError);
@@ -595,9 +624,11 @@ class AudioSynthesizer {
         }
       }
 
+      console.log('Buffer created successfully');
       return buffer;
     } catch (error) {
       console.error('Error in generateBuffer:', error);
+      console.error('Error stack:', error.stack);
       console.error('Parameters:', params);
       console.error('Duration:', duration);
       return null;
@@ -899,8 +930,51 @@ export default function CompleteCrispFXR() {
   const [isLooping, setIsLooping] = useState(false);
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  // Error boundary and logging
+  useEffect(() => {
+    const handleError = (event) => {
+      console.error('Global error caught:', event.error);
+      console.error('Error message:', event.message);
+      console.error('Filename:', event.filename);
+      console.error('Line number:', event.lineno);
+      console.error('Column number:', event.colno);
+      console.error('Stack trace:', event.error?.stack);
+    };
+
+    const handleUnhandledRejection = (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      console.error('Promise:', event.promise);
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
   
-  const synthRef = useRef(new AudioSynthesizer());
+  const synthRef = useRef(null);
+
+  // Initialize synth safely
+  useEffect(() => {
+    const initSynth = async () => {
+      try {
+        console.log('Creating AudioSynthesizer...');
+        const synth = new AudioSynthesizer();
+        await synth.initAudio(); // Wait for audio context to initialize
+        synthRef.current = synth;
+        console.log('AudioSynthesizer created and initialized successfully');
+      } catch (error) {
+        console.error('Failed to create AudioSynthesizer:', error);
+      }
+    };
+    
+    initSynth();
+  }, []);
+
   const loopIntervalRef = useRef(null);
 
   const updateParam = useCallback((param, value) => {
@@ -938,15 +1012,27 @@ export default function CompleteCrispFXR() {
 
   const generateSound = useCallback(async () => {
     try {
+      console.log('generateSound called, activeSlot:', activeSlot);
+      
+      if (!synthRef.current) {
+        console.error('synthRef.current is null');
+        return;
+      }
+      
       let currentParams = activeSlot === 'A' ? params : paramsB;
+      console.log('Current params:', currentParams);
       
       // Validate parameters first
       if (!currentParams) {
+        console.warn('No currentParams, creating default');
         currentParams = new SynthParams();
       }
       
       // Create a validated copy
-      const validatedParams = Object.assign(new SynthParams(), currentParams).validate();
+      let validatedParams = Object.assign(new SynthParams(), currentParams);
+      if (validatedParams.validate) {
+        validatedParams = validatedParams.validate();
+      }
       
       // Apply morphing if enabled
       if (morphAmount > 0 && morphAmount < 1) {
@@ -954,13 +1040,20 @@ export default function CompleteCrispFXR() {
         const targetParams = activeSlot === 'A' ? paramsB : params;
         
         if (sourceParams && targetParams) {
-          const sourceSynth = Object.assign(new SynthParams(), sourceParams).validate();
-          const targetSynth = Object.assign(new SynthParams(), targetParams).validate();
-          currentParams = sourceSynth.morphTo(targetSynth, morphAmount);
+          console.log('Applying morphing, amount:', morphAmount);
+          let sourceSynth = Object.assign(new SynthParams(), sourceParams);
+          let targetSynth = Object.assign(new SynthParams(), targetParams);
+          
+          if (sourceSynth.validate) sourceSynth = sourceSynth.validate();
+          if (targetSynth.validate) targetSynth = targetSynth.validate();
+          
+          validatedParams = sourceSynth.morphTo(targetSynth, morphAmount);
         }
       }
       
-      const buffer = synthRef.current.generateBuffer(validatedParams, 1.5);
+      console.log('About to generate buffer...');
+      const buffer = await synthRef.current.generateBuffer(validatedParams, 1.5); // ADD AWAIT!
+      console.log('Buffer generated:', buffer);
       
       if (activeSlot === 'A') {
         setAudioBuffer(buffer);
@@ -969,7 +1062,7 @@ export default function CompleteCrispFXR() {
       }
     } catch (error) {
       console.error('Error generating sound:', error);
-      // Set a default buffer or handle the error gracefully
+      console.error('Stack trace:', error.stack);
     }
   }, [params, paramsB, activeSlot, morphAmount]);
 
@@ -994,7 +1087,8 @@ export default function CompleteCrispFXR() {
     
     // Save to history
     setHistory(hist => [...hist.slice(0, historyIndex + 1), newParams]);
-    setHistoryIndex(hist => hist + 1);
+    // Note we must use a unique variable (prevIndex)
+    setHistoryIndex(prevIndex => prevIndex + 1);
   }, [activeSlot, historyIndex]);
 
   const copySlot = useCallback(() => {
@@ -1114,7 +1208,10 @@ export default function CompleteCrispFXR() {
 
   // Update master volume
   useEffect(() => {
-    synthRef.current.setMasterVolume(masterVolume);
+    // guard clause to ensure the synth is initialized.
+    if (synthRef.current) {
+      synthRef.current.setMasterVolume(masterVolume);
+    }
   }, [masterVolume]);
 
   // Generate sound when parameters change
@@ -1698,7 +1795,7 @@ export default function CompleteCrispFXR() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .slider {
           background: linear-gradient(90deg, #374151 0%, #3b82f6 50%, #8b5cf6 100%);
         }
@@ -1727,8 +1824,6 @@ export default function CompleteCrispFXR() {
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* dark mode/visibility */
-        
         .text-white {
           color: #ffffff !important;
         }
@@ -1751,7 +1846,6 @@ export default function CompleteCrispFXR() {
           color: #c084fc !important;
         }
         
-        /* Ensure background contrast */
         .bg-gray-900\\/50 {
           background-color: rgba(17, 24, 39, 0.8) !important;
         }
@@ -1759,7 +1853,6 @@ export default function CompleteCrispFXR() {
           background-color: rgba(31, 41, 55, 0.8) !important;
         }
 
-        /* Fix button text visibility */
         button {
           color: inherit !important;
         }
@@ -1774,7 +1867,6 @@ export default function CompleteCrispFXR() {
           color: #9ca3af !important;
         }
         
-        /* Ensure all preset buttons have proper contrast */
         .bg-yellow-600 { background-color: #d97706 !important; }
         .bg-red-600 { background-color: #dc2626 !important; }
         .bg-orange-600 { background-color: #ea580c !important; }
@@ -1782,7 +1874,7 @@ export default function CompleteCrispFXR() {
         .bg-purple-600 { background-color: #9333ea !important; }
         .bg-blue-600 { background-color: #2563eb !important; }
         .bg-teal-600 { background-color: #0d9488 !important; }
-        .bg-gray-600 { background-color: #4b5563 !important; }  
+        .bg-gray-600 { background-color: #4b5563 !important; }
       `}</style>
     </div>
   );
