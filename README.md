@@ -18,7 +18,7 @@ A modern web-based 8-bit sound synthesizer for creating (retro game) audio effec
 
 ## Live Demo
 
-[Visit CrispFXR](https://crispstrobe.vercel.app)
+[Visit CrispFXR](https://crispfxr.vercel.app)
 
 ## Usage
 
